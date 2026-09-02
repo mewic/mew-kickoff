@@ -84,6 +84,8 @@ flowchart TD
 
 ### 1) เตรียม CLI ที่จะใช้
 
+> `install.sh` ในข้อ 2 จะเช็คของพวกนี้ให้และติดตั้งให้ถ้ายังไม่มี ข้อนี้อธิบายว่ามันคืออะไรและใช้คำสั่งอะไร เผื่อต้องทำเอง
+
 <details>
 <summary><b>Claude Code</b></summary>
 
@@ -125,7 +127,7 @@ git clone git@github.com:mewic/mew-kickoff.git ~/projects/mew-kickoff
 ~/projects/mew-kickoff/install.sh
 ```
 
-`install.sh` จะสร้าง symlink จาก directory ของแต่ละ CLI มาที่ repo นี้ ไม่ copy ไฟล์ แก้ที่ repo ที่เดียวทุก CLI เห็นหมด
+`install.sh` ทำ 2 อย่าง: ติดตั้ง prerequisite ที่ยังขาด (plugin `superpowers` ถ้ามี Claude Code และ skill ชุดของ Matt Pocock ถ้ายังไม่มี `grilling`/`domain-modeling`) แล้วสร้าง symlink จาก directory ของแต่ละ CLI มาที่ repo นี้ ไม่ copy ไฟล์ แก้ที่ repo ที่เดียวทุก CLI เห็นหมด รันซ้ำได้เสมอ
 
 ### 3) เปิด session ใหม่ แล้วเช็ค
 
