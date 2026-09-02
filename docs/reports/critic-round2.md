@@ -1,0 +1,3 @@
+# critic round 2 (scoped re-review) — recorded by the session; the critic could not write files in this session (its agent definition was edited mid-session and the running session still held the old tools list)
+
+Verdict: PASS. All 10 round-1 findings resolved (F1–F7, R2/#5, #4, dry-run note). New, non-blocking: N1 whole-branch reviewer pinned to opus was an undeclared SDD deviation → folded into override #2 with rationale; N2 smoke.sh did not guard requesting-code-review/code-reviewer.md → added; N3 `code-reviewer` agent vs SDD template naming → agent path added; N4 collision fallback stated twice → deduped; N5 model rule scoped to built-in agents; N6 word cap raised to 2,250 (disclosed).

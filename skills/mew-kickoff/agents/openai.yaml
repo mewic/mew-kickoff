@@ -1,0 +1,5 @@
+interface:
+  display_name: "Mew Kickoff"
+  short_description: "Interview-to-delivery pipeline with model economy"
+policy:
+  allow_implicit_invocation: false
