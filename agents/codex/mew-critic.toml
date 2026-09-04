@@ -1,6 +1,6 @@
 name = "mew-critic"
 description = "Fresh-context critic for mew-kickoff non-code deliverables (strategy docs, business models, marketing briefs, presentations) and for plan pre-flight. Dispatched with ONLY the acceptance criteria and the deliverable or plan — never the conversation history."
-model = "gpt-5.6-sol"
+model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 developer_instructions = """

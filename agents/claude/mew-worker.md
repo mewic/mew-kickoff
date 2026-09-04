@@ -12,4 +12,4 @@ Rules:
 - If the spec is missing something you need, STOP and report the gap — do not improvise.
 - For code: tests first — write the failing test the spec implies, watch it fail, then implement until it passes. Run the build and the relevant tests yourself before reporting.
 - For tool-driven production (Gamma, Canva, image generation): every sentence of copy comes from the brief. You execute tools; you do not write copy.
-- Report in two parts: (1) write the full report to the file path named in your dispatch (or `docs/plans/reports/<task-slug>.md` if none): what you did, build/test output, links to created assets, deviations or gaps; (2) reply in chat with at most 150 words: done or blocked, the report path, and what the reviewer should look at first.
+- Report in two parts: (1) write the report to the dispatched path (or `docs/plans/reports/<task-slug>.md`): what changed, commands + exit codes, concise verification results, failing excerpts only, asset links, and deviations; (2) reply in at most 150 words: done or blocked, report path, and the reviewer's first focus.

@@ -52,14 +52,26 @@ done
 for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-critic; do
   grep -q '150 words' "$CLAUDE/agents/$a.md" && ok "claude agent $a report rule" || bad "claude agent $a lacks the 150-word report rule"
 done
+for f in "$CLAUDE/agents/mew-worker-mech.md" "$HOME/.codex/agents/mew-worker-mech.toml" "$HOME/.grok/agents/mew-worker-mech.md"; do
+  grep -q 'exit codes' "$f" && grep -q 'failing excerpts only' "$f" && ok "mechanical report evidence $f" || bad "mechanical report evidence incomplete in $f"
+done
 
 echo "# codex"
 for s in grilling domain-modeling; do [[ -f "$HOME/.agents/skills/$s/SKILL.md" ]] && ok "cross-runtime skill $s in ~/.agents/skills" || bad "~/.agents/skills/$s missing — Codex/Grok cannot load it"; done
 [[ "$(cd -P "$HOME/.agents/skills/mew-kickoff" 2>/dev/null && pwd -P)" == "$SKILL_DIR" ]] && ok "~/.agents/skills/mew-kickoff → skill dir" || bad "~/.agents/skills/mew-kickoff does not resolve to $SKILL_DIR"
-for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-critic; do
+for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-reviewer-heavy mew-critic; do
   f="$HOME/.codex/agents/$a.toml"
   [[ -f "$f" ]] || { bad "codex agent $a.toml missing"; continue; }
   grep -q '^model = ' "$f" && grep -q '150 words' "$f" && ok "codex agent $a ($(grep '^model = ' "$f" | cut -d'"' -f2))" || bad "codex agent $a lacks model or report rule"
+done
+for pair in 'mew-worker:gpt-5.6-terra' 'mew-worker-heavy:gpt-5.6-sol' 'mew-worker-mech:gpt-5.6-luna' 'mew-reviewer:gpt-5.6-terra' 'mew-reviewer-heavy:gpt-5.6-sol' 'mew-critic:gpt-5.6-terra'; do
+  a="${pair%%:*}"; expected="${pair#*:}"; f="$HOME/.codex/agents/$a.toml"
+  grep -qF "model = \"$expected\"" "$f" && ok "codex $a model economy ($expected)" || bad "codex $a must use $expected"
+done
+grep -qF 'fork_turns="none"' "$SKILL_DIR/adapters/codex.md" && ok "codex fresh-context dispatch" || bad "codex adapter must require fork_turns=none"
+grep -qF '`followup_task`' "$SKILL_DIR/adapters/codex.md" && ok "codex current follow-up tool" || bad "codex adapter lacks followup_task"
+for stale in send_input resume_agent close_agent; do
+  grep -q "$stale" "$SKILL_DIR/adapters/codex.md" && bad "codex adapter carries stale tool $stale" || ok "codex adapter free of stale $stale"
 done
 if command -v codex >/dev/null; then
   codex features list 2>/dev/null | grep -Eq '^multi_agent\s+stable\s+true' && ok "codex multi_agent enabled" || bad "codex multi_agent flag not enabled — spawn_agent will be missing"
@@ -67,7 +79,7 @@ else ok "codex not installed here (skipped)"; fi
 
 echo "# grok"
 [[ "$(cd -P "$HOME/.grok/skills/mew-kickoff" 2>/dev/null && pwd -P)" == "$SKILL_DIR" ]] && ok "~/.grok/skills/mew-kickoff → skill dir" || bad "~/.grok/skills/mew-kickoff does not resolve to $SKILL_DIR"
-for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-critic; do
+for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-reviewer-heavy mew-critic; do
   f="$HOME/.grok/agents/$a.md"
   [[ -f "$f" ]] || { bad "grok agent $a.md missing"; continue; }
   grep -q '^model:' "$f" && grep -q '^effort:' "$f" && grep -q '150 words' "$f" && ok "grok agent $a ($(grep '^model:' "$f" | awk '{print $2}'), effort $(grep '^effort:' "$f" | awk '{print $2}'))" || bad "grok agent $a lacks model, effort, or report rule"

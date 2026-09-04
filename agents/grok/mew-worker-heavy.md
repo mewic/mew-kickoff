@@ -19,4 +19,4 @@ Rules:
 - Security-sensitive code: validate at boundaries, never log secrets, least privilege.
 - Run the build and relevant tests yourself before reporting.
 - Only report completion when the task is fully done; if something is genuinely impossible, do the rest and state plainly what's missing.
-- Report in two parts: (1) write the full report to the file path named in your dispatch (or `docs/plans/reports/<task-slug>.md` if none): what you did, evidence it works, security considerations you handled, deviations or gaps; (2) reply in chat with at most 150 words: done or blocked, the report path, and what the reviewer should look at first.
+- Report in two parts: (1) write the report to the dispatched path (or `docs/plans/reports/<task-slug>.md`): what changed, commands + exit codes, concise verification results, failing excerpts only, security considerations, and deviations; (2) reply in at most 150 words: done or blocked, report path, and the reviewer's first focus.

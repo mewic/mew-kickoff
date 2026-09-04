@@ -42,7 +42,9 @@ for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-critic; do
   ln -sfn "$R/agents/codex/$a.toml"  ~/.codex/agents/$a.toml
   ln -sfn "$R/agents/grok/$a.md"     ~/.grok/agents/$a.md
 done
-echo "ok    symlinks written (skill + 5 agents × 3 CLIs)"
+ln -sfn "$R/agents/codex/mew-reviewer-heavy.toml" ~/.codex/agents/mew-reviewer-heavy.toml
+ln -sfn "$R/agents/grok/mew-reviewer-heavy.md" ~/.grok/agents/mew-reviewer-heavy.md
+echo "ok    symlinks written (skill + 5 base agents × 3 CLIs + conditional heavy reviewers)"
 
 echo "== 3/3 next"
 echo "Open a NEW session in each CLI you use (skills and agents are read at session start), then verify:"

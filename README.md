@@ -18,7 +18,7 @@
 2. เขียน **plan** ที่ระบุว่างานแต่ละชิ้นให้ agent ตัวไหนทำ ด้วยโมเดลอะไร
 3. หยุดรอคุณ **approve** ก่อนลงมือทุกครั้ง
 4. กระจายงานให้ **worker agent** ทำในบริบทสด แยกจากบทสนทนาหลัก
-5. **reviewer** ตรวจทุกชิ้น รัน build กับ test เอง แล้วโมเดลตัวท็อปเป็นคนตัดสินว่า "เสร็จ"
+5. **reviewer** ตรวจทุกชิ้นและรัน test เฉพาะส่วนเอง งานเสี่ยงจึงเพิ่ม whole-branch/security review แล้วโมเดลตัวท็อปปิดงาน
 6. ส่งมอบพร้อมหลักฐานว่าผ่าน gate ไหนบ้าง
 
 ใช้ได้กับ **Claude Code**, **OpenAI Codex CLI** และ **xAI Grok CLI** จาก source เดียวกัน
@@ -56,27 +56,31 @@ flowchart TD
     F -- พักไว้ --> F1[บันทึก plan · จบ session]
     F -- execute --> G[Step 4 · Execute<br/>เปิด session ใหม่ด้วย<br/>/mew-kickoff execute plan-file]
     G --> H[worker agents ทำงานขนาน<br/>ตาม Blocked-by]
-    H --> I[Step 5 · Review<br/>mew-reviewer ตรวจ + รัน test<br/>fix rounds สูงสุด 5]
-    I --> J[whole-branch review]
-    J --> K[Tier-2 gate<br/>session ตัวท็อปตัดสิน]
+    H --> I[Step 5 · Task review<br/>standard สูงสุด 2 fix rounds<br/>high-assurance สูงสุด 5]
+    I --> J{Risk?}
+    J -- low --> K
+    J -- medium/high --> J1[whole-branch review<br/>high เพิ่ม security review]
+    J1 --> K
+    K[Tier-2 gate<br/>session ตัวท็อปตัดสิน]
     K --> L([Step 6 · Deliver<br/>หลักฐานทุก gate + อัปเดต Status])
 ```
 
 ---
 
-## ทีม agent 5 ตัว
+## ทีม agent 5 ตัว + heavy reviewer เมื่อจำเป็น
 
 | Agent | หน้าที่ | Claude Code | Codex | Grok |
 |---|---|---|---|---|
-| `mew-worker` | งานที่ spec ชัด: โค้ด, test, refactor, ผลิตชิ้นงานด้วย tool **(default)** | Sonnet 5 · high | gpt-5.6-sol · high | grok-4.6 · high |
+| `mew-worker` | งานที่ spec ชัด: โค้ด, test, refactor, ผลิตชิ้นงานด้วย tool **(default)** | Sonnet 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
 | `mew-worker-heavy` | งานซับซ้อน หลายไฟล์ debug ยาก งานที่แตะ auth หรือ payment | Opus 5 · xhigh | gpt-5.6-sol · xhigh | grok-4.6 · xhigh |
-| `mew-worker-mech` | งานกลไกล้วน: rename, แก้ typo, boilerplate ซ้ำ ๆ | Haiku 4.5 | gpt-5.6-sol · medium | grok-4.6 · medium |
-| `mew-reviewer` | ตรวจงานทีละ task เทียบ spec + รัน build/test เอง | Sonnet 5 · high | gpt-5.6-sol · high | grok-4.6 · high |
-| `mew-critic` | ตรวจงานที่ไม่ใช่โค้ดและตรวจ plan ด้วยบริบทสด ไม่เห็นบทสนทนา | Opus 5 · high | gpt-5.6-sol · high | grok-4.6 · high |
+| `mew-worker-mech` | งานกลไกล้วน: rename, แก้ typo, boilerplate ซ้ำ ๆ | Haiku 4.5 | gpt-5.6-luna · medium | grok-4.6 · medium |
+| `mew-reviewer` | ตรวจ task และ standard branch review ด้วย scoped test | Sonnet 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
+| `mew-reviewer-heavy` | whole-branch/security review เฉพาะ high-assurance | Opus override | gpt-5.6-sol · xhigh | grok-4.6 · xhigh |
+| `mew-critic` | ตรวจงานที่ไม่ใช่โค้ดและตรวจ plan ด้วยบริบทสด ไม่เห็นบทสนทนา | Opus 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
 
 ตัว **session** (คุณคุยด้วย) ใช้โมเดลท็อปสุดที่มีที่ effort สูงสุด และลดลงหนึ่งขั้นตอนกระจายงานใน Step 4
 
-ทุก agent รายงานกลับมาไม่เกิน 150 คำ แล้วเขียนรายงานเต็มลงไฟล์ เพื่อไม่ให้บทสนทนาหลักบวม
+Codex dispatch ทุก agent ด้วย `fork_turns="none"` แล้วส่งเฉพาะ brief/path ที่จำเป็น ทุก agent รายงานกลับมาไม่เกิน 150 คำและเขียนหลักฐานลงไฟล์ เพื่อไม่ให้บทสนทนาหลักบวม
 
 ---
 
@@ -137,7 +141,7 @@ CLI ทุกตัวอ่าน skill และ agent ตอนเริ่�
 bash ~/projects/mew-kickoff/skills/mew-kickoff/scripts/smoke.sh
 ```
 
-ต้องเห็น `SMOKE: PASS` script นี้เช็ค pointer ทุกตัวที่ skill พึ่งพา ทั้งไฟล์ของ superpowers, agent ทั้ง 5, symlink และความเป็นกลางของ core
+ต้องเห็น `SMOKE: PASS` script นี้เช็ค pointer ทุกตัวที่ skill พึ่งพา รวมถึง model economy, fresh-context rule, agent definitions, symlink และความเป็นกลางของ core
 
 ---
 
@@ -150,12 +154,13 @@ bash ~/projects/mew-kickoff/skills/mew-kickoff/scripts/smoke.sh
 
 **สิ่งที่จะเกิดขึ้น**
 
-1. ถ้างานเล็กมาก (ไม่มี design decision, แตะไม่เกิน 2 ไฟล์) AI จะบอกว่า "งานนี้เข้าเกณฑ์ off-ramp" แล้วทำเลย พิมพ์ `เข้า pipeline เต็ม` ถ้าอยากบังคับ
+1. ถ้างานไม่มี design decision, ความเสี่ยงต่ำ และตรวจจบได้เป็นหนึ่ง bounded change จะเข้า off-ramp โดยไม่ดูจำนวนไฟล์ พิมพ์ `เข้า pipeline เต็ม` ถ้าอยากบังคับ
 2. AI ถามทีละคำถาม พร้อมคำตอบที่แนะนำ **ข้อเท็จจริง**มันไปหาเอง **การตัดสินใจ**มันจะรอคุณเสมอ
-3. ได้ plan ที่มีตาราง Execution Directive บอกว่าใครทำอะไร blocked by อะไร และ Acceptance Criteria ที่เช็คได้
+3. ได้ plan ที่มี Execution Directive, Acceptance Criteria และ Assurance/Budget ระบุ risk, fix-round ceiling, concurrency และ usage checkpoints
 4. AI หยุดที่ **approval gate** ตอบ `execute` เพื่อไปต่อ หรือ `พักไว้` เพื่อเก็บ plan ไว้ทำวันหลัง
 5. ตอน execute แนะนำให้ **เปิด session ใหม่** แล้วสั่ง `execute <plan-file>` เพื่อให้บริบทสะอาด และลด effort ของ session ลงหนึ่งขั้น (`/effort high` ใน Claude Code) แล้วกลับเป็นสูงสุดตอน gate สุดท้าย
-6. งานเสร็จ AI รายงานพร้อมหลักฐาน build/test, checklist ของ criteria และอัปเดตบรรทัด Status ใน plan
+6. ทุก task ถูก review; low risk รัน full suite แล้วเข้า final gate ส่วน medium/high เพิ่ม whole-branch review และ high เพิ่ม security review
+7. งานเสร็จ AI รายงานหลักฐาน build/test, criteria checklist, usage checkpoints และอัปเดต Status ใน plan
 
 **เอกสารที่ pipeline สร้างในโปรเจกต์ของคุณ**
 
@@ -183,7 +188,7 @@ skills/mew-kickoff/
   ultracode.md             เกณฑ์เสนอ review แบบ multi-agent (Claude Code)
   agents/openai.yaml       metadata สำหรับ Codex
   scripts/smoke.sh         ตัวเช็คว่าทุก pointer ยังใช้ได้
-agents/claude|codex|grok/  นิยาม agent 5 ตัวของแต่ละ CLI
+agents/claude|codex|grok/  นิยาม 5 base roles; Codex/Grok มี conditional heavy reviewer
 docs/                      plan, รายงาน critic, ผลทดสอบข้าม CLI, research, handoff
 scripts/                   script วัด token และต้นทุนจาก transcript ของ Claude Code
 install.sh                 สร้าง symlink เข้า CLI ทั้งสาม
@@ -213,9 +218,9 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 
 **แก้ไฟล์ agent แล้วไม่มีผล** — ไฟล์ agent มีผลกับ session ใหม่เท่านั้น ทุก CLI
 
-**ทำไม Codex กับ Grok ใช้โมเดลเดียวทุก role** — ทั้งสองเป็น subscription เหมาจ่าย จึงแยกระดับด้วย effort แทน ถ้าอยากใช้โมเดลเล็กลงให้แก้ในไฟล์ agent ได้เลย
+**ทำไม Codex แยก Sol/Terra/Luna** — usage allowance คิดตาม model, context, reasoning และ tool work แม้ใช้ subscription จึงใช้ Sol เฉพาะงานหนัก, Terra กับงานผลิต/ตรวจทั่วไป และ Luna กับงานกลไก ส่วน Grok ยังใช้โมเดลเดียวและแยกด้วย effort
 
-**ช้าและกิน token** — ปกติสำหรับงาน 7 ถึง 11 task (ราว 3 ถึง 5 ชั่วโมง) สิ่งที่ช่วยมากสุดคือ execute ใน session ใหม่ และอย่าให้ session หลักอ่านไฟล์เอง ใช้ `scripts/usage_by_model.py` วัดของคุณเองได้
+**ช้าและกิน token** — เช็คว่า plan ใช้ `standard` หรือ `high-assurance`, Codex agent มี `fork_turns="none"`, และ role mapping ผ่าน smoke แล้ว ดู usage ก่อน execute/หลังแต่ละ frontier/ก่อน final gate; ถึง budget ceiling ให้ session ตัดสิน ไม่เปิด agent เพิ่มอัตโนมัติ
 
 ---
 
