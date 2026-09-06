@@ -1,6 +1,6 @@
 # Adapter: Claude Code
 
-Read this when the harness is Claude Code (the system prompt says so). Everything here is Claude-specific; the process is in `SKILL.md`.
+Read this when the harness is Claude Code (the system prompt says so). Everything here is Claude-specific; interview/plan are in `SKILL.md`, execute is in `execute.md`.
 
 ## Loading skills
 - Use the Skill tool: `grilling`, then `domain-modeling` (Step 2); `superpowers:writing-plans` for the plan format (Step 3). All are model-invoked. Never point at a user-invoked skill — the Skill tool refuses those.
@@ -12,13 +12,16 @@ Read this when the harness is Claude Code (the system prompt says so). Everythin
 - Whole-branch reviewer: standard medium-risk review uses `mew-reviewer`; high-risk/high-assurance uses `mew-reviewer` with `model: opus` because a call-site model overrides the agent file.
 
 ## Execute loop: superpowers:subagent-driven-development (SDD)
-SDD owns Setup, workspace/ledger, implementer dispatch, review-package mechanics, and the breaker. `standard` stops automatic fixes at round 2; `high-assurance` may use SDD's five. SKILL.md's proportional gates override SDD where they differ:
+SDD owns Setup, workspace/ledger, implementer dispatch, review-package mechanics, and the breaker. `standard` stops automatic fixes at round 2; `high-assurance` may use SDD's five. `execute.md`'s proportional gates override SDD where they differ:
 1. Implementer = the Execution Directive agent as `subagent_type` (SDD's tiers: cheap = mech, standard = worker, most capable = heavy).
 2. Task review = `mew-reviewer`, running task-scoped checks independently. Medium risk adds whole-branch review on Sonnet; high risk/high-assurance uses Opus and security review. Low risk skips whole-branch review.
 3. Only high-confidence medium/high findings enter automatic fixes; escalation at rounds 4–5 = next agent tier.
 4. Parallel frontier dispatch overrides SDD's one-implementer-at-a-time rule (Blocked-by column carries the conflict guard).
 5. The complete build/test suite runs once after task fixes; successful logs are summarized instead of pasted.
 Full reports go in the plan's SDD workspace.
+
+## Fresh session
+Interview ends at the approval gate. Execute is a new Claude Code session starting with `mew-kickoff execute <plan-path>`.
 
 ## Effort
 `/effort`: `max` for interview, plan, and the Tier-2 gate; suggest `high` for Step 4 at the approval gate and at the start of an execute session; suggest `max` again before the Tier-2 gate. Only Mew switches.

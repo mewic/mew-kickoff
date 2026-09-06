@@ -4,7 +4,7 @@ Read this when the harness is Codex. Status 2026-09-04: skill path, native agent
 
 ## Loading skills
 - Personal skills load from `~/.agents/skills/`; this skill is symlinked there. Invoke it as `$mew-kickoff` or through `/skills`. Implicit invocation is disabled in `agents/openai.yaml`.
-- Load `grilling`, `domain-modeling`, or another named skill by reading `~/.agents/skills/<name>/SKILL.md` completely and following it. The template in `SKILL.md` is the plan format.
+- Load `grilling`, `domain-modeling`, or another named skill by reading `~/.agents/skills/<name>/SKILL.md` completely and following it. The template in `SKILL.md` is the plan format. Execute mode then reads `../execute.md`.
 - `$ARGUMENTS` substitution is unverified. Treat text after `$mew-kickoff` as the arguments.
 
 ## Agents and fresh dispatch
@@ -17,6 +17,9 @@ Read this when the harness is Codex. Status 2026-09-04: skill path, native agent
 
 ## Execute loop
 Read `adapters/loop.md`. Standard medium-risk whole-branch review uses `mew-reviewer`; high-assurance or high-risk whole-branch/security review uses `mew-reviewer-heavy`.
+
+## Fresh session
+Interview ends at the approval gate. Execute is a new Codex session: `$mew-kickoff execute <plan-path>`.
 
 ## Effort and usage
 Session effort comes from `model_reasoning_effort` in `~/.codex/config.toml` or `/model` in the TUI. Suggest `xhigh` for interview, plan, and Tier 2; `high` for Step 4. Mew performs the switch.

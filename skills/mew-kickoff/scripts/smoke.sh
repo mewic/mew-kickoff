@@ -19,15 +19,23 @@ find_skill() {  # user dir first, then any plugin ("plugin:skill" allowed)
 }
 
 echo "# core"
-for f in map.md ultracode.md adapters/claude.md adapters/codex.md adapters/grok.md adapters/loop.md agents/openai.yaml; do
+for f in map.md ultracode.md execute.md adapters/claude.md adapters/codex.md adapters/grok.md adapters/cursor.md adapters/loop.md agents/openai.yaml; do
   [[ -f "$SKILL_DIR/$f" ]] && ok "file $f" || bad "file $f missing"
 done
-# The core must stay harness-neutral: Claude-only tokens belong in adapters/claude.md.
-for tok in 'Skill tool' 'subagent_type' 'superpowers:' '/effort' '/security-review' 'grill-with-docs' 'temporarily edit'; do
-  grep -qF "$tok" "$SKILL" && bad "SKILL.md carries harness-specific token '$tok' — move it to an adapter" || ok "core free of '$tok'"
+# The core must stay harness-neutral: harness tokens belong in adapters.
+for core in "$SKILL" "$SKILL_DIR/execute.md"; do
+  label=$(basename "$core")
+  for tok in 'Skill tool' 'subagent_type' 'superpowers:' '/effort' '/security-review' 'grill-with-docs' 'temporarily edit' 'spawn_subagent' 'spawn_agent' 'Task tool' 'fork_turns'; do
+    grep -qF "$tok" "$core" && bad "$label carries harness-specific token '$tok' — move it to an adapter" || ok "$label free of '$tok'"
+  done
 done
+grep -q 'continue here' "$SKILL" && bad "SKILL.md still allows continue-here execute" || ok "SKILL.md forbids continue-here execute"
+grep -q 'whole frontier' "$SKILL" && ok "SKILL.md uses grilling frontier rounds" || bad "SKILL.md must use grilling frontier rounds"
+grep -q -- '-U3' "$SKILL_DIR/adapters/loop.md" && bad "loop.md still dumps unified diffs" || ok "loop.md omits full unified diffs"
 words=$(wc -w < "$SKILL" | tr -d ' ')
-(( words <= 2200 )) && ok "SKILL.md $words words" || bad "SKILL.md is $words words (> 2200) — disclose reference to sibling files"
+(( words <= 1600 )) && ok "SKILL.md $words words" || bad "SKILL.md is $words words (> 1600) — disclose reference to sibling files"
+ewords=$(wc -w < "$SKILL_DIR/execute.md" | tr -d ' ')
+(( ewords <= 1200 )) && ok "execute.md $ewords words" || bad "execute.md is $ewords words (> 1200)"
 
 echo "# claude"
 for ref in grilling domain-modeling superpowers:writing-plans superpowers:subagent-driven-development security-review; do
@@ -52,7 +60,7 @@ done
 for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-critic; do
   grep -q '150 words' "$CLAUDE/agents/$a.md" && ok "claude agent $a report rule" || bad "claude agent $a lacks the 150-word report rule"
 done
-for f in "$CLAUDE/agents/mew-worker-mech.md" "$HOME/.codex/agents/mew-worker-mech.toml" "$HOME/.grok/agents/mew-worker-mech.md"; do
+for f in "$CLAUDE/agents/mew-worker-mech.md" "$HOME/.codex/agents/mew-worker-mech.toml" "$HOME/.grok/agents/mew-worker-mech.md" "$HOME/.cursor/agents/mew-worker-mech.md"; do
   grep -q 'exit codes' "$f" && grep -q 'failing excerpts only' "$f" && ok "mechanical report evidence $f" || bad "mechanical report evidence incomplete in $f"
 done
 
@@ -82,7 +90,20 @@ echo "# grok"
 for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-reviewer-heavy mew-critic; do
   f="$HOME/.grok/agents/$a.md"
   [[ -f "$f" ]] || { bad "grok agent $a.md missing"; continue; }
-  grep -q '^model:' "$f" && grep -q '^effort:' "$f" && grep -q '150 words' "$f" && ok "grok agent $a ($(grep '^model:' "$f" | awk '{print $2}'), effort $(grep '^effort:' "$f" | awk '{print $2}'))" || bad "grok agent $a lacks model, effort, or report rule"
+  grep -q '^model:' "$f" && grep -q '^effort:' "$f" && grep -q '150 words' "$f" && grep -q 'mcpInheritance: none' "$f" && ok "grok agent $a ($(grep '^model:' "$f" | awk '{print $2}'), effort $(grep '^effort:' "$f" | awk '{print $2}'))" || bad "grok agent $a lacks model, effort, report rule, or mcpInheritance none"
 done
+grep -qF 'model: grok-4.5' "$HOME/.grok/agents/mew-worker-mech.md" && grep -qF 'effort: low' "$HOME/.grok/agents/mew-worker-mech.md" && ok "grok mech model economy (grok-4.5 low)" || bad "grok mew-worker-mech must use grok-4.5 low"
+grep -qF 'Suggest `high` for interview' "$SKILL_DIR/adapters/grok.md" && ok "grok adapter interview effort is high" || bad "grok adapter must suggest high for interview"
+grep -qF 'only Mew launches' "$SKILL_DIR/adapters/grok.md" && ok "grok heavier review is opt-in" || bad "grok adapter must keep heavier review opt-in"
+
+echo "# cursor"
+[[ "$(cd -P "$HOME/.cursor/skills/mew-kickoff" 2>/dev/null && pwd -P)" == "$SKILL_DIR" ]] && ok "~/.cursor/skills/mew-kickoff → skill dir" || bad "~/.cursor/skills/mew-kickoff does not resolve to $SKILL_DIR"
+for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-reviewer-heavy mew-critic; do
+  f="$HOME/.cursor/agents/$a.md"
+  [[ -f "$f" ]] || { bad "cursor agent $a.md missing"; continue; }
+  grep -q '150 words' "$f" && ok "cursor agent $a report rule" || bad "cursor agent $a lacks the 150-word report rule"
+done
+grep -qF 'generalPurpose' "$SKILL_DIR/adapters/cursor.md" && grep -qF 'composer-2.5-fast' "$SKILL_DIR/adapters/cursor.md" && ok "cursor adapter Task recipe" || bad "cursor adapter must document Task generalPurpose and a cheap model"
+grep -qF 'new Cursor chat' "$SKILL_DIR/adapters/cursor.md" && ok "cursor adapter requires a fresh execute chat" || bad "cursor adapter must require a new chat for execute"
 
 if (( fail )); then echo "SMOKE: FAIL"; exit 1; else echo "SMOKE: PASS"; fi

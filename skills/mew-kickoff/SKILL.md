@@ -9,29 +9,26 @@ metadata:
 
 # Mew Kickoff
 
-**Adapter first.** This file is the harness-neutral process. Before Step 0, read the adapter for the CLI you run in — `adapters/claude.md` (Claude Code), `adapters/codex.md` (OpenAI Codex), `adapters/grok.md` (xAI Grok). The system prompt names the CLI; failing that, the tool set does (`Skill` + `Agent` tools = Claude Code, `spawn_agent` = Codex). The adapter says how to load a skill, dispatch roles with fresh context, set effort, run security review, and get heavier review. "Adapter" below means that file.
+**Adapter first.** This file is the harness-neutral interview-to-plan process. Before Step 0, read the adapter that matches this harness: `adapters/claude.md`, `adapters/codex.md`, `adapters/grok.md`, `adapters/cursor.md`. Match the product name in the system prompt; if absent, match the tool names the adapter lists. The adapter says how to load a skill, dispatch roles with fresh context, set effort, and get heavier review. "Adapter" below means that file.
+
+Do not read `execute.md` in an interview session.
 
 ## Goal
 
-Maximize the value of the session model by spending it ONLY where sharpness matters — interviewing, specifying, routing, and reviewing — while workers do the production work. The output must be finished work that passes its gates (builds, tests, criteria), not a draft Mew has to debug.
-
-Three principles that survive model churn:
+Spend the session model only where sharpness matters — interviewing, specifying, routing, and reviewing. Workers do production work from a complete spec. Output must pass its gates, not leave a draft for Mew to debug.
 
 1. **Effort economy** — model, effort, and review depth rise with task risk; top effort is paid only where judgment compounds.
-2. **Context economy** — the session keeps its interview/plan context clean; production burns a fresh worker context, not the planning window.
-3. **Review independence** — the author of work is never its final judge. Workers produce; the session gates.
+2. **Context economy** — the interview/plan window stays clean; production burns a fresh worker context.
+3. **Review independence** — the author of work is never its final judge.
 
-**Division of labor (never violate):**
-- Session model: thinks, decides, writes specs/strategy/copy, routes tasks, reviews.
-- Worker models (subagents): produce code, run tools, generate assets — always from a complete spec.
-- The session model never writes production code itself when the pipeline is active, even when it shares a base model with the worker.
+**Division of labor (never violate):** the session thinks, decides, writes specs/strategy/copy, routes, and gates. Workers produce code, run tools, and generate assets. The session never writes production code while the pipeline is active, even when it shares a base model with the worker.
 
 ## Modes
 
-Arguments: the text after the skill name (`$ARGUMENTS` in Claude Code).
+Arguments: the text after the skill name.
 
-- Empty → full pipeline below. The interview session ends at the approval gate.
-- `execute <docs/plans/FILE.md>` → run Step 4 in a **fresh session** with the plan, CONTEXT.md, and referenced ADRs. If `approved:` is pending, present the summary and wait for approval. Suggest the adapter's Step-4 effort, then top effort before Tier 2.
+- Empty → Steps 0–3 below. The interview session ends at the approval gate.
+- `execute <docs/plans/FILE.md>` → **fresh session only.** Read `execute.md` and follow it with the plan, CONTEXT.md, and referenced ADRs. If this session already ran Steps 1–3, stop and give Mew the exact first message for a new session instead.
 
 ## Step 0 — Triage (off-ramp)
 
@@ -44,15 +41,13 @@ Everything else enters the pipeline.
 Check for `CONTEXT.md` and `docs/` in the project root.
 
 - **Nothing exists** (fresh project): full interview.
-- **Anything exists**: read whatever is there (`CONTEXT.md`, `docs/adr/`, latest plans) FIRST. Then interview only about the **delta** — the new feature/engagement. Never re-ask what the docs already answer.
-
-### Too big for one plan → chart a map
+- **Anything exists**: read whatever is there (`CONTEXT.md`, `docs/adr/`, latest plans) FIRST. Then interview only the **delta**. Never re-ask what the docs already answer.
 
 If the work cannot fit one plan — decisions ahead can't all be named yet, or the effort will span multiple sessions — read `map.md` in this folder and chart the map first: Destination, Decisions so far, Not yet specified, Out of scope. One decision per session; the map is an index, not a store.
 
 ## Step 2 — Interview
 
-Load `grilling`, then `domain-modeling` as the adapter directs. Ask **one question at a time, with a recommended answer.** End when shared understanding is reached and every design branch is resolved; these are additional mandatory minimums:
+Load `grilling`, then `domain-modeling` as the adapter directs. Follow grilling: ask the **whole frontier** in one round — numbered questions, each with a recommended answer — then wait. A question that depends on an unanswered question in this round belongs to a later round. End when the frontier is empty and every design branch is resolved; these are additional mandatory minimums:
 
 1. **Deliverable format** — code in repo / markdown doc / Gamma presentation / Canva design / website / images / mix. Record it as a fixed requirement.
 2. **Acceptance criteria** — concrete, checkable "done" conditions per deliverable (for non-code work too: questions it must answer, segments it must cover, slide count, required evidence).
@@ -63,7 +58,7 @@ Load `grilling`, then `domain-modeling` as the adapter directs. Ask **one questi
 
 ## Step 3 — Plan
 
-Write `docs/plans/YYYY-MM-DD-<task-slug>.md`: goal, architecture, task sections with files/interfaces/checklist, and these executor sections:
+Write `docs/plans/YYYY-MM-DD-<task-slug>.md`: goal, architecture, task sections with files/interfaces/checklist, and these executor sections. Agent names in the Execution Directive are `mew-worker` / `mew-worker-heavy` / `mew-worker-mech` / `(session model)`; the adapter maps each name.
 
 ```markdown
 ## Global Constraints
@@ -97,64 +92,25 @@ interviewed YYYY-MM-DD | approved: pending | executed: - | delivered: -
 Rules:
 - **Tracer bullets**: each code task is a narrow, complete, independently verifiable path through every affected layer. Size it to one fresh worker context; prefactoring goes first.
 - **Mode**: `subagent` = dispatched as the named agent; `inline` = the session model itself (Agent column `(session model)`).
-- **Blocked by**: every task declares the task numbers that must finish before it can start (`—` = none). Declare only genuine dependencies — independent tasks are the point; they unlock parallel dispatch in Step 4.
-- **Reference, never copy**: point to CONTEXT.md terms and ADR numbers instead of restating them. Restated content goes stale — that is the real bloat.
-- **Proportional assurance**: default to `standard`. Use `high-assurance` for auth, payments, secrets, user-input boundaries, external side effects, data migration, irreversible operations, or unusually broad/novel changes. Record the reason and budget in the plan.
+- **Blocked by**: every task declares the task numbers that must finish before it can start (`—` = none). Declare only genuine dependencies — independent tasks unlock parallel dispatch during execute.
+- **Reference, never copy**: point to CONTEXT.md terms and ADR numbers instead of restating them.
+- **Proportional assurance**: default to `standard`. Use `high-assurance` for auth, payments, secrets, user-input boundaries, external side effects, data migration, irreversible operations, or unusually broad/novel changes. Record the reason and budget.
 - Consulting/marketing plans must contain the **complete brief**: every sentence of copy, structure, tone, image specs. A worker following the brief verbatim must be able to produce the deliverable.
 - External outputs (Gamma/Canva links) get recorded back into this file with date + status.
 
 ### Pre-flight critic (plans with more than 5 tasks)
 
-Before the approval gate, dispatch `mew-critic` with ONLY the plan file and its Acceptance Criteria; fix what it flags, then present. Spec defects caught here cost one critic run; caught in Step 5 they cost every task built on them.
+Before the approval gate, dispatch `mew-critic` with ONLY the plan file and its Acceptance Criteria; fix what it flags, then present.
 
 ### 🛑 Approval gate
 
 STOP. Present the plan summary and wait for Mew. Two valid outcomes:
-- **"execute"** → write `approved: <date>` in the Status line, suggest Mew set the adapter's Step-4 effort (top effort returns before the Tier-2 gate), then start a fresh session with `execute <file>` — or continue here if Mew prefers.
-- **"พักไว้" / defer** → the plan is approved, execution is not: write `approved: <date>`, `executed: deferred` and end.
+- **"execute"** → write `approved: <date>` in the Status line, suggest the adapter's execute-session effort, and **end this session**. Give Mew the exact first message for a new session: the skill name plus `execute` and the plan path. Never start code execution here.
+- **"พักไว้" / defer** → write `approved: <date>`, `executed: deferred` and end.
 
-Never start executing without explicit approval.
+**Session-authored consulting / strategy / copy** may be written in this interview session after approval (the session owns that context). Write it to `docs/deliverables/`. Production code and marketing-tool execution still wait for a fresh `execute` session.
 
-## Step 4 — Execute
-
-**Code tasks** → the adapter's execute loop (per-plan ledger, review package per task, capped fix rounds, and profile-driven final review). Four rules hold in every harness:
-
-1. **Implementer** = the agent named in the Execution Directive (`mew-worker` / `mew-worker-heavy` / `mew-worker-mech`), dispatched with the complete task spec; model + effort come from the agent's definition.
-2. **Reviewers** = `mew-reviewer` per task, dispatched with the review package, brief, worker report path, and Global Constraints. Medium/high risk also gets a whole-branch review; high risk uses the adapter's heavy reviewer plus security review. The session is the final gate.
-3. **Escalation**: `standard` allows two automatic fix rounds; `high-assurance` allows five, escalating after round 3 (mech → worker → heavy). Only high-confidence findings of medium-or-greater severity enter the automatic loop. Ledger advisory findings for the final gate. A heavy worker failing twice usually means the spec is wrong: rule on it, fix the plan, and redispatch.
-4. **Parallel frontier**: the plan's Blocked-by column already serializes tasks that share files, so independent tasks run together; if two implementers still collide in git, serialize the rest of that wave.
-
-Every dispatch of a built-in agent names its model where the adapter's Agents section allows it; a dispatch that inherits the session model pays the session's price.
-
-**Dispatch the frontier in parallel:** every task whose Blocked-by entries have all passed review is on the frontier — dispatch those together, not one at a time. When a task clears Step 5, re-compute the frontier and dispatch the newly unblocked.
-
-**Fresh dispatch:** workers, reviewers, critics, and explorers start without the parent conversation. Give each a complete bounded prompt or exact file paths; the adapter defines the harness control. Every subagent replies with at most 150 words and writes its report to a file. The session opens a full report only when its summary flags something, and uses a fresh read-only explorer for source questions. Run continuously; do not check in between tasks.
-
-At every plan checkpoint supported by the harness, record usage in the ledger. If the run reaches its declared agent-run or fix-round ceiling, stop automatic expansion and let the session rule on the smallest path to acceptance.
-
-**Consulting / strategy / copy** → the session model writes this inline in the interview session (it owns the context; the plan's complete brief lets a fresh session take over if needed). Write the deliverable to `docs/deliverables/`.
-
-**Marketing production** → dispatch `mew-worker` with the full brief. It executes tools without inventing copy; fix brief gaps first.
-
-## Step 5 — Review
-
-**Tier 1 — `mew-reviewer`:** every code task receives fresh-context spec and quality review plus independently run task-scoped verification. Successful logs are command + exit code + concise summary; include output excerpts only for failures.
-
-**Profile gate:** low risk stops after Tier 1 and one final full-suite verification. Medium risk adds a fresh whole-branch review. High risk uses the adapter's heavy whole-branch reviewer and security review. The complete build/test suite runs once after all task fixes, not once per reviewer.
-
-**Tier 2 — final gate (session model, top effort):** read the Tier-1 summaries, any profile-required whole-branch/security findings, the final verification result, and the acceptance criteria. Only this gate can declare the work done.
-
-**Non-code deliverables:** dispatch `mew-critic` with ONLY the acceptance criteria + the deliverable (not the conversation). The session revises per critic feedback, three-round ceiling, then report to Mew.
-
-**Stopping:** ask before an irreversible operation, a security-sensitive action, a side effect outside the worktree (merge, push, publish), a plan broken past guessing, or a breaker that leaves a security-sensitive finding open. Heavier review than the tiers give: the adapter's **Heavier review** section, suggested to Mew with the trigger named.
-
-## Step 6 — Deliver
-
-Report delivered work, gate evidence, criteria, asset links, and frontier-wave count. Update plan Status, CONTEXT.md, and ADRs for decisions that crystallized.
-
-## Roles (the model economy)
-
-Base roles: `mew-worker` (specified production), `mew-worker-heavy` (complex/security-sensitive work), `mew-worker-mech` (mechanical edits), `mew-reviewer` (Tier 1), and `mew-critic` (non-code/plan critic). An adapter may add a conditional heavy reviewer. The session owns interview, plan, copy, routing, and the final gate. The adapter maps each role to model and effort; `scripts/smoke.sh` checks every pointer after harness or plugin updates.
+Never start executing production code without explicit approval, and never in the interview session.
 
 ## Document Conventions
 
@@ -172,10 +128,8 @@ docs/deliverables/    consulting outputs
 ## Red Flags — stop and re-read this skill
 
 - The session model is writing production code while the pipeline is active.
-- A worker is inventing copy or design decisions not in the brief.
-- Executing without an approved plan.
+- Executing code, reading `execute.md`, or starting Step 4 in the interview session.
 - A plan restates CONTEXT.md/ADR content.
 - Re-interviewing facts already recorded in project docs.
 - A design decision answered on Mew's behalf.
-- Independent tasks dispatched one at a time when the frontier held several.
-- A built-in agent dispatched without a model, a full report pasted into the session, the session reading source files in Step 4, or running without the adapter.
+- Asking one question per turn when the frontier held several.
