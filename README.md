@@ -72,11 +72,11 @@ flowchart TD
 | Agent | หน้าที่ | Claude Code | Codex | Grok |
 |---|---|---|---|---|
 | `mew-worker` | งานที่ spec ชัด: โค้ด, test, refactor, ผลิตชิ้นงานด้วย tool **(default)** | Sonnet 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
-| `mew-worker-heavy` | งานซับซ้อน หลายไฟล์ debug ยาก งานที่แตะ auth หรือ payment | Opus 5 · xhigh | gpt-5.6-sol · xhigh | grok-4.6 · xhigh |
+| `mew-worker-heavy` | งานซับซ้อน หลายไฟล์ debug ยาก งานที่แตะ auth หรือ payment | Opus 5.5 · xhigh | gpt-5.6-sol · xhigh | grok-4.6 · xhigh |
 | `mew-worker-mech` | งานกลไกล้วน: rename, แก้ typo, boilerplate ซ้ำ ๆ | Haiku 4.5 | gpt-5.6-luna · medium | grok-4.5 · low |
 | `mew-reviewer` | ตรวจ task และ standard branch review ด้วย scoped test | Sonnet 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
 | `mew-reviewer-heavy` | whole-branch/security review เฉพาะ high-assurance | Opus override | gpt-5.6-sol · xhigh | grok-4.6 · xhigh |
-| `mew-critic` | ตรวจงานที่ไม่ใช่โค้ดและตรวจ plan ด้วยบริบทสด ไม่เห็นบทสนทนา | Opus 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
+| `mew-critic` | ตรวจงานที่ไม่ใช่โค้ดและตรวจ plan ด้วยบริบทสด ไม่เห็นบทสนทนา | Opus 5.5 · high | gpt-5.6-terra · high | grok-4.6 · high |
 
 ตัว **session** (คุณคุยด้วย) ใช้โมเดลท็อปสุดที่มีที่ effort สูงสุด และลดลงหนึ่งขั้นตอนกระจายงานใน Step 4
 

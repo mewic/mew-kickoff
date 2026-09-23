@@ -40,9 +40,9 @@ Current top available model: **Fable 5.1** (alias `fable`). When a new top model
 | Session: interview, plan, copy, final gate | — | Fable 5.1 | max |
 | Session: routing in Step 4 | — | Fable 5.1 | high |
 | Adversarial review | — | Fable 5.1 | ultracode |
-| Heavy code | `mew-worker-heavy` | Opus 5 (`opus`) | xhigh |
+| Heavy code | `mew-worker-heavy` | Opus 5.5 (`opus`) | xhigh |
 | Default worker | `mew-worker` | Sonnet 5 (`sonnet`) | high |
 | Mechanical | `mew-worker-mech` | Haiku 4.5 (`haiku`) | — |
 | Tier-1 / standard branch review | `mew-reviewer` | Sonnet 5 | high |
-| High-assurance branch review | `mew-reviewer` override | Opus 5 | high |
-| Critic | `mew-critic` | Opus 5 | high |
+| High-assurance branch review | `mew-reviewer` override | Opus 5.5 | high |
+| Critic | `mew-critic` | Opus 5.5 | high |

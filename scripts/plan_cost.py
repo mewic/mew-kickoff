@@ -4,7 +4,8 @@ import os, json, time, sys
 from collections import defaultdict
 proj, dates = sys.argv[1], sys.argv[2].split(",")
 ROOT = os.path.join(os.path.expanduser("~/.claude/projects"), proj)
-PRICE={"fable":(10,50),"opus":(5,25),"sonnet":(3,15),"haiku":(1,5)}
+# $/MTok (input, output, cache read); more specific keys first — tier() takes the first substring match
+PRICE={"fable-5-1":(10,50,.25),"fable":(10,50,1),"opus-5-5":(4,20,.2),"opus":(5,25,.5),"sonnet":(2,10,.2),"haiku":(1,5,.1)}
 def tier(m):
     m=(m or "").lower()
     for k in PRICE:
@@ -46,7 +47,7 @@ for dp,dn,fns in os.walk(ROOT):
         else: nsub+=1
 def cost(t,a):
     if t not in PRICE: return 0
-    pi,po=PRICE[t]; return (a["in"]*pi+a["cr"]*pi*.1+a["c5m"]*pi*1.25+a["c1h"]*pi*2+a["out"]*po)/1e6
+    pi,po,pc=PRICE[t]; return (a["in"]*pi+a["cr"]*pc+a["c5m"]*pi*1.25+a["c1h"]*pi*2+a["out"]*po)/1e6
 grand=0
 for k,a in sorted(tot.items(), key=lambda x:-cost(x[0][1],x[1])):
     c=cost(k[1],a); grand+=c

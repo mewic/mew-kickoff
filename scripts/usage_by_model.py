@@ -6,12 +6,15 @@ from collections import defaultdict
 ROOT = os.path.expanduser("~/.claude/projects")
 CUTOFF = time.mktime(time.strptime("2026-07-25", "%Y-%m-%d"))
 
-# $/MTok: (input, output). cache write 5m = 1.25x input, 1h = 2x input, cache read = 0.1x input
+# $/MTok: (input, output, cache read). cache write 5m = 1.25x input, 1h = 2x input.
+# More specific keys first — tier() takes the first substring match.
 PRICE = {
-    "fable": (10, 50),
-    "opus": (5, 25),
-    "sonnet": (3, 15),
-    "haiku": (1, 5),
+    "fable-5-1": (10, 50, 0.25),
+    "fable": (10, 50, 1.0),
+    "opus-5-5": (4, 20, 0.2),
+    "opus": (5, 25, 0.5),
+    "sonnet": (2, 10, 0.2),
+    "haiku": (1, 5, 0.1),
 }
 def tier(model):
     m = (model or "").lower()
@@ -85,12 +88,12 @@ for dirpath, dirnames, filenames in os.walk(ROOT):
 def cost(t, a):
     if t not in PRICE:
         return 0.0
-    pi, po = PRICE[t]
-    return (a["input"] * pi + a["cache_read"] * pi * 0.1 + a["cache_w5m"] * pi * 1.25 + a["cache_w1h"] * pi * 2.0 + a["output"] * po) / 1e6
+    pi, po, pc = PRICE[t]
+    return (a["input"] * pi + a["cache_read"] * pc + a["cache_w5m"] * pi * 1.25 + a["cache_w1h"] * pi * 2.0 + a["output"] * po) / 1e6
 
 print(f"files scanned: {nfiles}  main={files_by_role['main']} subagent={files_by_role['subagent']}")
 print()
-print(f"{'role':9} {'model':7} {'turns':>7} {'input':>10} {'cache_rd':>12} {'cache_w5m':>11} {'cache_w1h':>11} {'output':>10} {'est_$':>9}")
+print(f"{'role':9} {'model':9} {'turns':>7} {'input':>10} {'cache_rd':>12} {'cache_w5m':>11} {'cache_w1h':>11} {'output':>10} {'est_$':>9}")
 total_cost = 0.0
 rows = []
 for k, a in agg.items():
@@ -99,7 +102,7 @@ for k, a in agg.items():
     rows.append((c, k, a))
 rows.sort(reverse=True)
 for c, k, a in rows:
-    print(f"{k[0]:9} {k[1]:7} {turns_by_role_model[k]:7d} {int(a['input']):10d} {int(a['cache_read']):12d} {int(a['cache_w5m']):11d} {int(a['cache_w1h']):11d} {int(a['output']):10d} {c:9.2f}")
+    print(f"{k[0]:9} {k[1]:9} {turns_by_role_model[k]:7d} {int(a['input']):10d} {int(a['cache_read']):12d} {int(a['cache_w5m']):11d} {int(a['cache_w1h']):11d} {int(a['output']):10d} {c:9.2f}")
 print(f"\nTOTAL est_$ = {total_cost:.2f}")
 by_role = defaultdict(float)
 for c, k, a in rows:
@@ -110,4 +113,4 @@ print("\nsubagent files per model: count / median turns / median total tokens / 
 import statistics
 for m, lst in subagent_files.items():
     if not lst: continue
-    print(f"  {m:7} n={len(lst):5d}  turns~{statistics.median([x[0] for x in lst]):.0f}  total~{statistics.median([x[1] for x in lst]):.0f}  out~{statistics.median([x[2] for x in lst]):.0f}")
+    print(f"  {m:9} n={len(lst):5d}  turns~{statistics.median([x[0] for x in lst]):.0f}  total~{statistics.median([x[1] for x in lst]):.0f}  out~{statistics.median([x[2] for x in lst]):.0f}")
