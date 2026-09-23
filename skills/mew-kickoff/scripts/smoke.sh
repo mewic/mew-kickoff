@@ -95,6 +95,22 @@ done
 grep -qF 'model: grok-4.5' "$HOME/.grok/agents/mew-worker-mech.md" && grep -qF 'effort: low' "$HOME/.grok/agents/mew-worker-mech.md" && ok "grok mech model economy (grok-4.5 low)" || bad "grok mew-worker-mech must use grok-4.5 low"
 grep -qF 'Suggest `high` for interview' "$SKILL_DIR/adapters/grok.md" && ok "grok adapter interview effort is high" || bad "grok adapter must suggest high for interview"
 grep -qF 'only Mew launches' "$SKILL_DIR/adapters/grok.md" && ok "grok heavier review is opt-in" || bad "grok adapter must keep heavier review opt-in"
+CRITIC="$HOME/.grok/agents/mew-critic.md"
+grep -q '^tools:' "$CRITIC" && ok "grok mew-critic has tools allowlist" || bad "grok mew-critic lacks tools allowlist"
+grep -Eq '^tools:.*(Bash|Edit|bash|search_replace|run_terminal_command)' "$CRITIC" && bad "grok mew-critic has shell or Edit" || ok "grok mew-critic has no shell and no Edit"
+grep -Eq '^tools:.*(Write|write)' "$CRITIC" && ok "grok mew-critic can write its report" || bad "grok mew-critic tools cannot write a report"
+for a in mew-reviewer mew-reviewer-heavy; do
+  f="$HOME/.grok/agents/$a.md"
+  grep -q '^tools:' "$f" && grep -Eq '^tools:.*(Write|write)' "$f" && grep -Eq '^tools:.*(Bash|bash|run_terminal_command)' "$f" && ! grep -Eq '^tools:.*(Edit|search_replace)' "$f" && ok "grok $a tools (verify+report, no Edit)" || bad "grok $a must allowlist Bash+Write without Edit"
+done
+GA="$SKILL_DIR/adapters/grok.md"
+grep -qF 'enter_plan_mode' "$GA" && ok "grok adapter skips native plan mode" || bad "grok adapter must skip enter_plan_mode during the pipeline"
+grep -qF 'isolation: worktree' "$GA" && ok "grok adapter pins implementer worktree isolation" || bad "grok adapter must pin isolation: worktree for implementers"
+grep -qF 'Fix round:' "$GA" && grep -qF 'resume_from' "$GA" && ok "grok adapter uses resume_from for fix rounds" || bad "grok adapter must use resume_from for fix rounds"
+grep -qF '/usage' "$GA" && ok "grok adapter usage checkpoint is /usage" || bad "grok adapter must record /usage at checkpoints"
+README="$SKILL_DIR/../../README.md"
+mech=$(grep -F '| `mew-worker-mech`' "$README" || true)
+printf '%s\n' "$mech" | grep -q 'grok-4.5 · low' && ok "README Grok mech cell is grok-4.5 low" || bad "README mew-worker-mech Grok cell must be grok-4.5 · low"
 
 echo "# cursor"
 [[ "$(cd -P "$HOME/.cursor/skills/mew-kickoff" 2>/dev/null && pwd -P)" == "$SKILL_DIR" ]] && ok "~/.cursor/skills/mew-kickoff → skill dir" || bad "~/.cursor/skills/mew-kickoff does not resolve to $SKILL_DIR"

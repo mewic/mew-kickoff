@@ -14,7 +14,7 @@
 
 `mew-kickoff` คือ **skill** ตัวเดียวที่เปลี่ยนการ "สั่ง AI เขียนโค้ด" ให้เป็น pipeline ที่มีขั้นตอน มี gate และมีคนตรวจงานเสมอ:
 
-1. AI **สัมภาษณ์**คุณทีละคำถามจนโจทย์ชัด ไม่เดาแทนคุณ
+1. AI **สัมภาษณ์**คุณเป็นรอบ — ถามทุกข้อที่ถามได้ตอนนี้พร้อมคำตอบแนะนำ แล้วรอคุณตอบ ไม่เดาแทนคุณ
 2. เขียน **plan** ที่ระบุว่างานแต่ละชิ้นให้ agent ตัวไหนทำ ด้วยโมเดลอะไร
 3. หยุดรอคุณ **approve** ก่อนลงมือทุกครั้ง
 4. กระจายงานให้ **worker agent** ทำในบริบทสด แยกจากบทสนทนาหลัก
@@ -46,7 +46,7 @@ flowchart TD
     A([คุณพิมพ์ /mew-kickoff]) --> B{Step 0 · Triage<br/>งานเล็กมาก?}
     B -- ใช่ --> B1[ทำเลย ไม่เข้า pipeline]
     B -- ไม่ --> C[Step 1 · Recon<br/>อ่าน CONTEXT.md, docs/ ที่มีอยู่]
-    C --> D[Step 2 · Interview<br/>grilling + domain-modeling<br/>ทีละคำถาม พร้อมคำตอบแนะนำ]
+    C --> D[Step 2 · Interview<br/>grilling + domain-modeling<br/>ทั้ง frontier ในรอบเดียว พร้อมคำตอบแนะนำ]
     D --> E[Step 3 · Plan<br/>docs/plans/YYYY-MM-DD-slug.md<br/>Execution Directive · Acceptance Criteria]
     E --> E1{"> 5 task?"}
     E1 -- ใช่ --> E2[mew-critic ตรวจ plan ก่อน]
@@ -73,7 +73,7 @@ flowchart TD
 |---|---|---|---|---|
 | `mew-worker` | งานที่ spec ชัด: โค้ด, test, refactor, ผลิตชิ้นงานด้วย tool **(default)** | Sonnet 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
 | `mew-worker-heavy` | งานซับซ้อน หลายไฟล์ debug ยาก งานที่แตะ auth หรือ payment | Opus 5 · xhigh | gpt-5.6-sol · xhigh | grok-4.6 · xhigh |
-| `mew-worker-mech` | งานกลไกล้วน: rename, แก้ typo, boilerplate ซ้ำ ๆ | Haiku 4.5 | gpt-5.6-luna · medium | grok-4.6 · medium |
+| `mew-worker-mech` | งานกลไกล้วน: rename, แก้ typo, boilerplate ซ้ำ ๆ | Haiku 4.5 | gpt-5.6-luna · medium | grok-4.5 · low |
 | `mew-reviewer` | ตรวจ task และ standard branch review ด้วย scoped test | Sonnet 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
 | `mew-reviewer-heavy` | whole-branch/security review เฉพาะ high-assurance | Opus override | gpt-5.6-sol · xhigh | grok-4.6 · xhigh |
 | `mew-critic` | ตรวจงานที่ไม่ใช่โค้ดและตรวจ plan ด้วยบริบทสด ไม่เห็นบทสนทนา | Opus 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
@@ -155,7 +155,7 @@ bash ~/projects/mew-kickoff/skills/mew-kickoff/scripts/smoke.sh
 **สิ่งที่จะเกิดขึ้น**
 
 1. ถ้างานไม่มี design decision, ความเสี่ยงต่ำ และตรวจจบได้เป็นหนึ่ง bounded change จะเข้า off-ramp โดยไม่ดูจำนวนไฟล์ พิมพ์ `เข้า pipeline เต็ม` ถ้าอยากบังคับ
-2. AI ถามทีละคำถาม พร้อมคำตอบที่แนะนำ **ข้อเท็จจริง**มันไปหาเอง **การตัดสินใจ**มันจะรอคุณเสมอ
+2. AI ถามทั้ง frontier ในรอบเดียว พร้อมคำตอบที่แนะนำ **ข้อเท็จจริง**มันไปหาเอง **การตัดสินใจ**มันจะรอคุณเสมอ
 3. ได้ plan ที่มี Execution Directive, Acceptance Criteria และ Assurance/Budget ระบุ risk, fix-round ceiling, concurrency และ usage checkpoints
 4. AI หยุดที่ **approval gate** ตอบ `execute` เพื่อไปต่อ หรือ `พักไว้` เพื่อเก็บ plan ไว้ทำวันหลัง
 5. ตอน execute แนะนำให้ **เปิด session ใหม่** แล้วสั่ง `execute <plan-file>` เพื่อให้บริบทสะอาด และลด effort ของ session ลงหนึ่งขั้น (`/effort high` ใน Claude Code) แล้วกลับเป็นสูงสุดตอน gate สุดท้าย
