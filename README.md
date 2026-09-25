@@ -18,7 +18,7 @@
 2. เขียน **plan** ที่ระบุว่างานแต่ละชิ้นให้ agent ตัวไหนทำ ด้วยโมเดลอะไร
 3. หยุดรอคุณ **approve** ก่อนลงมือทุกครั้ง
 4. กระจายงานให้ **worker agent** ทำในบริบทสด แยกจากบทสนทนาหลัก
-5. **reviewer** ตรวจทุกชิ้นและรัน test เฉพาะส่วนเอง งานเสี่ยงจึงเพิ่ม whole-branch/security review แล้วโมเดลตัวท็อปปิดงาน
+5. **reviewer** ตรวจงาน risk medium/high และรัน test เฉพาะส่วนเอง (งาน low risk ใช้ผล verify ของ worker) งานเสี่ยงจึงเพิ่ม whole-branch/security review แล้วโมเดลตัวท็อปปิดงาน
 6. ส่งมอบพร้อมหลักฐานว่าผ่าน gate ไหนบ้าง
 
 ใช้ได้กับ **Claude Code**, **OpenAI Codex CLI** และ **xAI Grok CLI** จาก source เดียวกัน
@@ -32,10 +32,10 @@
 | หลัก | ความหมาย |
 |---|---|
 | **Effort economy** | จ่าย effort สูงสุดเฉพาะจุดที่ "การตัดสินใจ" ทบต้น: สัมภาษณ์, spec, review ไม่ใช่ตอนพิมพ์โค้ด |
-| **Context economy** | session หลักเก็บบริบทของการสัมภาษณ์กับ plan ให้สะอาด งานผลิตไปเผาบริบทสดของ worker แทน |
+| **Context economy** | session หลักเก็บบริบทของการสัมภาษณ์กับ plan ให้สะอาด งานผลิตไปเผาบริบทสดของ worker แทน state อยู่บนดิสก์ (plan, ledger, report) เพื่อให้ harness compact ได้ ไม่ใช้ context 1M เพื่อเลี่ยง compaction |
 | **Review independence** | คนเขียนไม่ใช่คนตัดสิน worker ผลิต, reviewer ตรวจ, session ปิดงาน |
 
-ทำไมถึงเชื่อแบบนี้: เราวัดจริงจาก transcript 5 สัปดาห์ ($16k เทียบราคา API) พบว่า **65% ของต้นทุนคือ session หลักอ่าน context ยาว ๆ ซ้ำทุก turn** ส่วน output ที่ worker ผลิตทั้งหมดรวมกันไม่ถึง 1% ดังนั้นสถาปัตยกรรม "ท็อปคิด เล็กผลิต" ถูกแล้ว สิ่งที่ต้องคุมคือขนาดบริบทของ session หลัก (รายละเอียดใน [`docs/HANDOFF.md`](docs/HANDOFF.md))
+ทำไมถึงเชื่อแบบนี้: เราวัดจริงจาก transcript 5 สัปดาห์ ($16k เทียบราคา API) พบว่า **65% ของต้นทุนคือ session หลักอ่าน context ยาว ๆ ซ้ำทุก turn** ส่วน output ที่ worker ผลิตทั้งหมดรวมกันไม่ถึง 1% ดังนั้นสถาปัตยกรรม "ท็อปคิด เล็กผลิต" ถูกแล้ว สิ่งที่ต้องคุมคือขนาดบริบทของ session หลัก (รายละเอียดใน [`docs/HANDOFF.md`](docs/HANDOFF.md)) audit รอบ 2026-09-24/25 ยืนยันซ้ำ: 5B cache-read tokens ใน 2 วัน, subagent 67%, context เฉลี่ยของ session หลัก 396K ต่อ call จึงเป็นที่มาของการปรับใน [อัปเดตล่าสุด](#อัปเดตล่าสุด-2026-09-25)
 
 ---
 
@@ -158,7 +158,7 @@ bash ~/projects/mew-kickoff/skills/mew-kickoff/scripts/smoke.sh
 3. ได้ plan ที่มี Execution Directive, Acceptance Criteria และ Assurance/Budget ระบุ risk, fix-round ceiling, concurrency และ usage checkpoints
 4. AI หยุดที่ **approval gate** ตอบ `execute` เพื่อไปต่อ หรือ `พักไว้` เพื่อเก็บ plan ไว้ทำวันหลัง
 5. ตอน execute แนะนำให้ **เปิด session ใหม่** แล้วสั่ง `execute <plan-file>` เพื่อให้บริบทสะอาด และลด effort ของ session ลงหนึ่งขั้น (`/effort high` ใน Claude Code) แล้วกลับเป็นสูงสุดตอน gate สุดท้าย
-6. ทุก task ถูก review; low risk รัน full suite แล้วเข้า final gate ส่วน medium/high เพิ่ม whole-branch review และ high เพิ่ม security review
+6. review ตาม risk: low ใช้ผล verify ของ worker แล้วรัน full suite เข้า final gate, medium ให้ `mew-reviewer` ตรวจทุก task และเพิ่ม whole-branch review, high เพิ่ม security review
 7. งานเสร็จ AI รายงานหลักฐาน build/test, criteria checklist, usage checkpoints และอัปเดต Status ใน plan
 
 **เอกสารที่ pipeline สร้างในโปรเจกต์ของคุณ**
@@ -220,6 +220,18 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 **ทำไม Codex แยก Sol/Astra/Luna** — usage allowance คิดตาม model, context, reasoning และ tool work แม้ใช้ subscription จึงใช้ Sol 6 เฉพาะงานหนัก, Astra กับงานผลิต/ตรวจทั่วไป และ Luna กับงานกลไก ส่วน Grok มีโมเดลเดียว (4.7) จึงแยก role ด้วย effort อย่างเดียว
 
 **ช้าและกิน token** — เช็คว่า plan ใช้ `standard` หรือ `high-assurance`, Codex agent มี `fork_turns="none"`, และ role mapping ผ่าน smoke แล้ว ดู usage ก่อน execute/หลังแต่ละ frontier/ก่อน final gate; ถึง budget ceiling ให้ session ตัดสิน ไม่เปิด agent เพิ่มอัตโนมัติ
+
+---
+
+## อัปเดตล่าสุด 2026-09-25
+
+- **ไม่ต้องใช้ plugin `superpowers` แล้ว** `adapters/loop.md` เป็น execute loop กลางของ Claude Code, Codex, Grok และ Cursor ปิด plugin ได้เลย (`claude plugins disable superpowers`)
+- **review ตาม risk** `mew-reviewer` ตรวจเฉพาะ task risk medium/high งาน low ใช้ผล verify ของ worker + final gate
+- **context 200K ปล่อยให้ auto-compact** ไม่ใช้ model แบบ `[1m]` เพื่อเลี่ยง compaction state อยู่ในไฟล์ plan/ledger/report
+- **ตาราง model ใหม่** Claude: Sonnet/Opus/Haiku (economy) สลับเป็น Fable ทั้งหมดด้วย `scripts/agent-models.sh fable` เมื่อจำเป็น — ข้อเท็จจริงจาก support.claude.com: Fable นับใน weekly allowance เดียวกับ Opus และแถบ Fable คือเพดาน 50% ในนั้น ไม่ใช่โควตาเพิ่ม · Codex: gpt-6-sol / gpt-6-astra / gpt-5.6-luna · Grok: `grok-4.7-build-fast` ตัวเดียว แยก role ด้วย effort
+- **กฎกลาง 3 CLI** อยู่ที่ `~/.agents/SKILL-PRECEDENCE.md` (Claude อ่านผ่าน `@` ใน CLAUDE.md, Codex/Grok ผ่าน AGENTS.md symlink) แทน skill พิธีกรรมของ superpowers/ponytail
+
+อัปเดตแล้วรัน `install.sh` ซ้ำ, `smoke.sh` ต้อง PASS, แล้วเปิด session ใหม่ทุก CLI
 
 ---
 
