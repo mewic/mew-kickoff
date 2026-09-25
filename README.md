@@ -227,7 +227,7 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 
 - **ไม่ต้องใช้ plugin `superpowers` แล้ว** `adapters/loop.md` เป็น execute loop กลางของ Claude Code, Codex, Grok และ Cursor ปิด plugin ได้เลย (`claude plugins disable superpowers`)
 - **review ตาม risk** `mew-reviewer` ตรวจเฉพาะ task risk medium/high งาน low ใช้ผล verify ของ worker + final gate
-- **context 200K ปล่อยให้ auto-compact** ไม่ใช้ model แบบ `[1m]` เพื่อเลี่ยง compaction state อยู่ในไฟล์ plan/ledger/report
+- **auto-compact ที่ 200K** Opus 5.5/Fable 5.1 มีแต่ window 1M จึงคุมด้วย `"autoCompactWindow": 200000` ใน `~/.claude/settings.json` (หรือ `/autocompact`) ให้ compact ตั้งแต่ ~200K state อยู่ในไฟล์ plan/ledger/report
 - **ตาราง model ใหม่** Claude: Sonnet/Opus/Haiku (economy) สลับเป็น Fable ทั้งหมดด้วย `scripts/agent-models.sh fable` เมื่อจำเป็น — ข้อเท็จจริงจาก support.claude.com: Fable นับใน weekly allowance เดียวกับ Opus และแถบ Fable คือเพดาน 50% ในนั้น ไม่ใช่โควตาเพิ่ม · Codex: gpt-6-sol / gpt-6-astra / gpt-5.6-luna · Grok: `grok-4.7-build-fast` ตัวเดียว แยก role ด้วย effort
 - **กฎกลาง 3 CLI** อยู่ที่ `~/.agents/SKILL-PRECEDENCE.md` (Claude อ่านผ่าน `@` ใน CLAUDE.md, Codex/Grok ผ่าน AGENTS.md symlink) แทน skill พิธีกรรมของ superpowers/ponytail
 
