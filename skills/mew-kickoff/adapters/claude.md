@@ -19,7 +19,7 @@ Read `adapters/loop.md`. Claude Code overlays:
 - Full reports go in `docs/plans/reports/<plan-slug>/`.
 
 ## Context
-Opus 5.5 and Fable 5.1 ship with a 1M window only; there is no 200K variant. The lever is the auto-compact window: `~/.claude/settings.json` sets `"autoCompactWindow": 200000`, so Claude Code compacts at ~200K and the plan, ledger, and reports on disk carry state across compactions. Raise it for one session only (`/autocompact 1000000`, or the `--autocompact` flag) when Mew asks for a whole-codebase audit or a cross-system review that must sit in one window. `/handoff` is for stopping, not for controlling context.
+Opus 5.5 and Fable 5.1 ship with a 1M window only; there is no 200K variant. The lever is the auto-compact window: `~/.claude/settings.json` sets `"autoCompactWindow": 300000`, so Claude Code compacts at ~300K (interviews usually finish under that; execute sessions compact a few times) and the plan, ledger, and reports on disk carry state across compactions. Raise it for one session only (`/autocompact 1000000`, or the `--autocompact` flag) when Mew asks for a whole-codebase audit or a cross-system review that must sit in one window. `/handoff` is for stopping, not for controlling context.
 
 ## Fresh session
 Interview ends at the approval gate. Execute is a new Claude Code session starting with `mew-kickoff execute <plan-path>`.
