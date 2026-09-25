@@ -11,7 +11,7 @@ Read this when the harness is Grok CLI (not Cursor). Status 2026-09-13: skill lo
 - Base definitions: `~/.grok/agents/mew-{worker,worker-heavy,worker-mech,reviewer,critic}.md`; conditional heavy review: `mew-reviewer-heavy.md`. They use Markdown + YAML frontmatter in Grok's native agent format. Project-scoped `.grok/agents/` overrides user-scoped. The native files are the source here.
 - Every `mew-*` agent sets `mcpInheritance: none` so children do not load the parent's MCP tool schemas.
 - Dispatch with the `spawn_subagent` tool: `subagent_type` = the agent name, `prompt` = the complete task spec, `description` = a 3–5 word label; optional `background`, `isolation` (`none` | `worktree`), `model`, `cwd`, `resume_from`. Background results come back through `get_command_or_subagent_output`.
-- Built-ins: `general-purpose`, `explore` (read-only — the Step 4 explorer), `plan`. Pass `model` when spawning a built-in. On `explore` pass `model: grok-4.5` even if the spawn schema says to omit it — otherwise the child inherits the session model.
+- Built-ins: `general-purpose`, `explore` (read-only — the Step 4 explorer), `plan`. Pass `model` when spawning a built-in. On `explore` pass `model: grok-4.7-build-fast` (effort low) even if the spawn schema says to omit it — otherwise the child inherits the session model.
 - Critic and reviewer tool allowlists live in the agent files (critic: no shell; reviewers: Bash+Write, no Edit).
 - Effort per agent: the `effort:` frontmatter key is applied to the child session (verified). Resolution order is spawn-time override, role, persona, then parent; because `spawn_subagent` has no effort parameter, high-assurance review uses `mew-reviewer-heavy` (`xhigh`).
 - `/fork` branches the session; it is not a subagent. Personas (`/personas`) are tone overlays, not roles.
@@ -40,17 +40,17 @@ No built-in command: dispatch `mew-reviewer-heavy` with a security-focused promp
 ## Fresh session
 Interview ends at the approval gate. Execute is a new Grok session: `/mew-kickoff execute <plan-path>`. If Mew says execute in the interview session, stop and hand back that command.
 
-## Models (2026-09-13)
-Tier by model and effort. grok-4.5 has no `xhigh`; use it for mechanical and explore work.
+## Models (2026-09-25)
+xAI ships one line, not a tiered family: `grok-4.7-build-fast` is the current model for every role, and roles differ by **effort** only (`low` … `xhigh`). Older 4.5/4.6 buy nothing once 4.7 is available. When a newer Grok ships, update this table, the agent files, and `smoke.sh` in one commit.
 
 | Role | Agent | Model | Effort |
 |------|-------|-------|--------|
-| Session: interview, Step 4 routing | — | grok-4.6 | high |
-| Session: plan synthesis, Tier 2 | — | grok-4.6 | xhigh |
-| Heavy code | `mew-worker-heavy` | grok-4.6 | xhigh |
-| Default worker | `mew-worker` | grok-4.6 | high |
-| Mechanical | `mew-worker-mech` | grok-4.5 | low |
-| Tier-1 review | `mew-reviewer` | grok-4.6 | high |
-| High-assurance review | `mew-reviewer-heavy` | grok-4.6 | xhigh |
-| Critic | `mew-critic` | grok-4.6 | high |
-| Read-only explorer | built-in `explore` | grok-4.5 | low |
+| Session: interview, Step 4 routing | — | grok-4.7-build-fast | high |
+| Session: plan synthesis, Tier 2 | — | grok-4.7-build-fast | xhigh |
+| Heavy code | `mew-worker-heavy` | grok-4.7-build-fast | xhigh |
+| Default worker | `mew-worker` | grok-4.7-build-fast | high |
+| Mechanical | `mew-worker-mech` | grok-4.7-build-fast | low |
+| Tier-1 review | `mew-reviewer` | grok-4.7-build-fast | high |
+| High-assurance review | `mew-reviewer-heavy` | grok-4.7-build-fast | xhigh |
+| Critic | `mew-critic` | grok-4.7-build-fast | high |
+| Read-only explorer | built-in `explore` | grok-4.7-build-fast | low |

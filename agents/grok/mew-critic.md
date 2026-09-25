@@ -3,7 +3,7 @@ name: mew-critic
 description: >
   Fresh-context critic for mew-kickoff non-code deliverables (strategy docs, business models, marketing briefs, presentations) and for plan pre-flight. Dispatched with ONLY the acceptance criteria and the deliverable or plan — never the conversation history.
 prompt_mode: full
-model: grok-4.6
+model: grok-4.7-build-fast
 effort: high
 permission_mode: default
 agents_md: true

@@ -25,7 +25,7 @@ done
 # The core must stay harness-neutral: harness tokens belong in adapters.
 for core in "$SKILL" "$SKILL_DIR/execute.md"; do
   label=$(basename "$core")
-  for tok in 'Skill tool' 'subagent_type' 'superpowers:' '/effort' '/security-review' 'grill-with-docs' 'temporarily edit' 'spawn_subagent' 'spawn_agent' 'Task tool' 'fork_turns'; do
+  for tok in 'Skill tool' 'subagent_type' 'superpowers:' 'SDD' '/effort' '/security-review' 'grill-with-docs' 'temporarily edit' 'spawn_subagent' 'spawn_agent' 'Task tool' 'fork_turns'; do
     grep -qF "$tok" "$core" && bad "$label carries harness-specific token '$tok' — move it to an adapter" || ok "$label free of '$tok'"
   done
 done
@@ -38,16 +38,11 @@ ewords=$(wc -w < "$SKILL_DIR/execute.md" | tr -d ' ')
 (( ewords <= 1200 )) && ok "execute.md $ewords words" || bad "execute.md is $ewords words (> 1200)"
 
 echo "# claude"
-for ref in grilling domain-modeling superpowers:writing-plans superpowers:subagent-driven-development security-review; do
+for ref in grilling domain-modeling security-review; do
   f=$(find_skill "$ref")
   if [[ -z "$f" ]]; then [[ "$ref" == security-review ]] && ok "skill $ref (built-in, not on disk)" || bad "skill $ref not found"; continue; fi
   grep -q '^disable-model-invocation: *true' "$f" && bad "skill $ref is user-invoked; the Skill tool will refuse it" || ok "skill $ref"
 done
-SDD=$(dirname "$(find_skill superpowers:subagent-driven-development)")
-for f in task-reviewer-prompt.md implementer-prompt.md scripts/review-package scripts/sdd-workspace ../requesting-code-review/code-reviewer.md; do
-  [[ -e "$SDD/$f" ]] && ok "SDD $f" || bad "SDD $f missing — re-check adapters/claude.md against $SDD/SKILL.md"
-done
-grep -q 'Five rounds maximum' "$SDD/SKILL.md" && ok "SDD still uses a 5-round cap" || bad "SDD round cap changed — update adapters/claude.md"
 for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-critic code-reviewer; do
   f="$CLAUDE/agents/$a.md"
   [[ -f "$f" ]] || { bad "claude agent $a missing"; continue; }
@@ -72,7 +67,7 @@ for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-reviewer-h
   [[ -f "$f" ]] || { bad "codex agent $a.toml missing"; continue; }
   grep -q '^model = ' "$f" && grep -q '150 words' "$f" && ok "codex agent $a ($(grep '^model = ' "$f" | cut -d'"' -f2))" || bad "codex agent $a lacks model or report rule"
 done
-for pair in 'mew-worker:gpt-5.6-terra' 'mew-worker-heavy:gpt-5.6-sol' 'mew-worker-mech:gpt-5.6-luna' 'mew-reviewer:gpt-5.6-terra' 'mew-reviewer-heavy:gpt-5.6-sol' 'mew-critic:gpt-5.6-terra'; do
+for pair in 'mew-worker:gpt-6-astra' 'mew-worker-heavy:gpt-6-sol' 'mew-worker-mech:gpt-5.6-luna' 'mew-reviewer:gpt-6-astra' 'mew-reviewer-heavy:gpt-6-sol' 'mew-critic:gpt-6-astra'; do
   a="${pair%%:*}"; expected="${pair#*:}"; f="$HOME/.codex/agents/$a.toml"
   grep -qF "model = \"$expected\"" "$f" && ok "codex $a model economy ($expected)" || bad "codex $a must use $expected"
 done
@@ -92,7 +87,7 @@ for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-reviewer-h
   [[ -f "$f" ]] || { bad "grok agent $a.md missing"; continue; }
   grep -q '^model:' "$f" && grep -q '^effort:' "$f" && grep -q '150 words' "$f" && grep -q 'mcpInheritance: none' "$f" && ok "grok agent $a ($(grep '^model:' "$f" | awk '{print $2}'), effort $(grep '^effort:' "$f" | awk '{print $2}'))" || bad "grok agent $a lacks model, effort, report rule, or mcpInheritance none"
 done
-grep -qF 'model: grok-4.5' "$HOME/.grok/agents/mew-worker-mech.md" && grep -qF 'effort: low' "$HOME/.grok/agents/mew-worker-mech.md" && ok "grok mech model economy (grok-4.5 low)" || bad "grok mew-worker-mech must use grok-4.5 low"
+grep -qF 'model: grok-4.7-build-fast' "$HOME/.grok/agents/mew-worker-mech.md" && grep -qF 'effort: low' "$HOME/.grok/agents/mew-worker-mech.md" && ok "grok mech model economy (grok-4.7-build-fast low)" || bad "grok mew-worker-mech must use grok-4.7-build-fast low"
 grep -qF 'Suggest `high` for interview' "$SKILL_DIR/adapters/grok.md" && ok "grok adapter interview effort is high" || bad "grok adapter must suggest high for interview"
 grep -qF 'only Mew launches' "$SKILL_DIR/adapters/grok.md" && ok "grok heavier review is opt-in" || bad "grok adapter must keep heavier review opt-in"
 CRITIC="$HOME/.grok/agents/mew-critic.md"
@@ -110,7 +105,7 @@ grep -qF 'Fix round:' "$GA" && grep -qF 'resume_from' "$GA" && ok "grok adapter 
 grep -qF '/usage' "$GA" && ok "grok adapter usage checkpoint is /usage" || bad "grok adapter must record /usage at checkpoints"
 README="$SKILL_DIR/../../README.md"
 mech=$(grep -F '| `mew-worker-mech`' "$README" || true)
-printf '%s\n' "$mech" | grep -q 'grok-4.5 · low' && ok "README Grok mech cell is grok-4.5 low" || bad "README mew-worker-mech Grok cell must be grok-4.5 · low"
+printf '%s\n' "$mech" | grep -q 'grok-4.7-build-fast · low' && ok "README Grok mech cell is grok-4.7-build-fast low" || bad "README mew-worker-mech Grok cell must be grok-4.7-build-fast · low"
 
 echo "# cursor"
 [[ "$(cd -P "$HOME/.cursor/skills/mew-kickoff" 2>/dev/null && pwd -P)" == "$SKILL_DIR" ]] && ok "~/.cursor/skills/mew-kickoff → skill dir" || bad "~/.cursor/skills/mew-kickoff does not resolve to $SKILL_DIR"

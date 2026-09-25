@@ -3,7 +3,7 @@ name: mew-worker-heavy
 description: >
   Heavy implementer for mew-kickoff pipeline — complex multi-file code, hard debugging, security-sensitive work (auth, payments), and intricate algorithms. Dispatched with a complete task spec from the plan.
 prompt_mode: full
-model: grok-4.6
+model: grok-4.7-build-fast
 effort: xhigh
 permission_mode: default
 agents_md: true

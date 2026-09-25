@@ -3,7 +3,7 @@ name: mew-worker-mech
 description: >
   Mechanical worker for mew-kickoff pipeline — pure mechanical tasks with zero design judgment: renames across files, typo sweeps, repeated boilerplate, format conversions.
 prompt_mode: full
-model: grok-4.5
+model: grok-4.7-build-fast
 effort: low
 permission_mode: default
 agents_md: false

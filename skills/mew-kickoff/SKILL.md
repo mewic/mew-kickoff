@@ -18,7 +18,7 @@ Do not read `execute.md` in an interview session.
 Spend the session model only where sharpness matters — interviewing, specifying, routing, and reviewing. Workers do production work from a complete spec. Output must pass its gates, not leave a draft for Mew to debug.
 
 1. **Effort economy** — model, effort, and review depth rise with task risk; top effort is paid only where judgment compounds.
-2. **Context economy** — the interview/plan window stays clean; production burns a fresh worker context.
+2. **Context economy** — the interview/plan window stays clean; production burns a fresh worker context; state lives on disk (plan, ledger, reports) so the harness can compact freely.
 3. **Review independence** — the author of work is never its final judge.
 
 **Division of labor (never violate):** the session thinks, decides, writes specs/strategy/copy, routes, and gates. Workers produce code, run tools, and generate assets. The session never writes production code while the pipeline is active, even when it shares a base model with the worker.
@@ -94,6 +94,7 @@ Rules:
 - **Mode**: `subagent` = dispatched as the named agent; `inline` = the session model itself (Agent column `(session model)`).
 - **Blocked by**: every task declares the task numbers that must finish before it can start (`—` = none). Declare only genuine dependencies — independent tasks unlock parallel dispatch during execute.
 - **Reference, never copy**: point to CONTEXT.md terms and ADR numbers instead of restating them.
+- **Review gates by risk**: low → the worker's own build+test only (no reviewer dispatch); medium → `mew-reviewer` per task; high / `high-assurance` → `mew-reviewer` per task plus whole-branch and security review. Write the gate into the Review gates column.
 - **Proportional assurance**: default to `standard`. Use `high-assurance` for auth, payments, secrets, user-input boundaries, external side effects, data migration, irreversible operations, or unusually broad/novel changes. Record the reason and budget.
 - Consulting/marketing plans must contain the **complete brief**: every sentence of copy, structure, tone, image specs. A worker following the brief verbatim must be able to produce the deliverable.
 - External outputs (Gamma/Canva links) get recorded back into this file with date + status.

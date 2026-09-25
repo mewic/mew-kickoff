@@ -1,6 +1,6 @@
 name = "mew-reviewer-heavy"
 description = "Conditional high-assurance Codex reviewer for broad, novel, or security-sensitive whole-branch changes. Runs final verification or a focused security review from fresh context."
-model = "gpt-5.6-sol"
+model = "gpt-6-sol"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """

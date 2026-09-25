@@ -71,12 +71,12 @@ flowchart TD
 
 | Agent | หน้าที่ | Claude Code | Codex | Grok |
 |---|---|---|---|---|
-| `mew-worker` | งานที่ spec ชัด: โค้ด, test, refactor, ผลิตชิ้นงานด้วย tool **(default)** | Sonnet 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
-| `mew-worker-heavy` | งานซับซ้อน หลายไฟล์ debug ยาก งานที่แตะ auth หรือ payment | Opus 5.5 · xhigh | gpt-5.6-sol · xhigh | grok-4.6 · xhigh |
-| `mew-worker-mech` | งานกลไกล้วน: rename, แก้ typo, boilerplate ซ้ำ ๆ | Haiku 4.5 | gpt-5.6-luna · medium | grok-4.5 · low |
-| `mew-reviewer` | ตรวจ task และ standard branch review ด้วย scoped test | Sonnet 5 · high | gpt-5.6-terra · high | grok-4.6 · high |
-| `mew-reviewer-heavy` | whole-branch/security review เฉพาะ high-assurance | Opus override | gpt-5.6-sol · xhigh | grok-4.6 · xhigh |
-| `mew-critic` | ตรวจงานที่ไม่ใช่โค้ดและตรวจ plan ด้วยบริบทสด ไม่เห็นบทสนทนา | Opus 5.5 · high | gpt-5.6-terra · high | grok-4.6 · high |
+| `mew-worker` | งานที่ spec ชัด: โค้ด, test, refactor, ผลิตชิ้นงานด้วย tool **(default)** | Sonnet 5 · high | gpt-6-astra · high | grok-4.7-build-fast · high |
+| `mew-worker-heavy` | งานซับซ้อน หลายไฟล์ debug ยาก งานที่แตะ auth หรือ payment | Opus 5.5 · xhigh | gpt-6-sol · xhigh | grok-4.7-build-fast · xhigh |
+| `mew-worker-mech` | งานกลไกล้วน: rename, แก้ typo, boilerplate ซ้ำ ๆ | Haiku 4.5 | gpt-5.6-luna · medium | grok-4.7-build-fast · low |
+| `mew-reviewer` | ตรวจ task และ standard branch review ด้วย scoped test | Sonnet 5 · high | gpt-6-astra · high | grok-4.7-build-fast · high |
+| `mew-reviewer-heavy` | whole-branch/security review เฉพาะ high-assurance | Opus override | gpt-6-sol · xhigh | grok-4.7-build-fast · xhigh |
+| `mew-critic` | ตรวจงานที่ไม่ใช่โค้ดและตรวจ plan ด้วยบริบทสด ไม่เห็นบทสนทนา | Opus 5.5 · high | gpt-6-astra · high | grok-4.7-build-fast · high |
 
 ตัว **session** (คุณคุยด้วย) ใช้โมเดลท็อปสุดที่มีที่ effort สูงสุด และลดลงหนึ่งขั้นตอนกระจายงานใน Step 4
 
@@ -93,10 +93,9 @@ Codex dispatch ทุก agent ด้วย `fork_turns="none"` แล้วส�
 <details>
 <summary><b>Claude Code</b></summary>
 
-ต้องมี plugin `superpowers` (เป็น execute loop) และ skill ชุดของ Matt Pocock (`grilling`, `domain-modeling`)
+ต้องมี skill ชุดของ Matt Pocock (`grilling`, `domain-modeling`) เท่านั้น — ไม่ต้องใช้ plugin `superpowers` แล้ว ตั้งแต่ 2026-09-25 execute loop อยู่ใน `adapters/loop.md` และใช้ร่วมกันทุก CLI
 
 ```bash
-claude plugins install superpowers
 npx skills@latest add mattpocock/skills -g -a '*'
 ```
 
@@ -131,7 +130,7 @@ git clone git@github.com:mewic/mew-kickoff.git ~/projects/mew-kickoff
 ~/projects/mew-kickoff/install.sh
 ```
 
-`install.sh` ทำ 2 อย่าง: ติดตั้ง prerequisite ที่ยังขาด (plugin `superpowers` ถ้ามี Claude Code และ skill ชุดของ Matt Pocock ถ้ายังไม่มี `grilling`/`domain-modeling`) แล้วสร้าง symlink จาก directory ของแต่ละ CLI มาที่ repo นี้ ไม่ copy ไฟล์ แก้ที่ repo ที่เดียวทุก CLI เห็นหมด รันซ้ำได้เสมอ
+`install.sh` ทำ 2 อย่าง: ติดตั้ง prerequisite ที่ยังขาด (skill ชุดของ Matt Pocock ถ้ายังไม่มี `grilling`/`domain-modeling`) แล้วสร้าง symlink จาก directory ของแต่ละ CLI มาที่ repo นี้ ไม่ copy ไฟล์ แก้ที่ repo ที่เดียวทุก CLI เห็นหมด รันซ้ำได้เสมอ
 
 ### 3) เปิด session ใหม่ แล้วเช็ค
 
@@ -183,7 +182,7 @@ skills/mew-kickoff/
   adapters/claude.md       วิธี dispatch, effort, security review, ตาราง model สำหรับ Claude Code
   adapters/codex.md        เช่นเดียวกันสำหรับ Codex
   adapters/grok.md         เช่นเดียวกันสำหรับ Grok
-  adapters/loop.md         execute loop ขั้นต่ำสำหรับ CLI ที่ไม่มี superpowers
+  adapters/loop.md         execute loop กลาง ใช้ร่วมกันทุก CLI
   map.md                   วิธีเขียน "map" เมื่องานใหญ่เกิน 1 plan
   ultracode.md             เกณฑ์เสนอ review แบบ multi-agent (Claude Code)
   agents/openai.yaml       metadata สำหรับ Codex
@@ -218,7 +217,7 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 
 **แก้ไฟล์ agent แล้วไม่มีผล** — ไฟล์ agent มีผลกับ session ใหม่เท่านั้น ทุก CLI
 
-**ทำไม Codex แยก Sol/Terra/Luna** — usage allowance คิดตาม model, context, reasoning และ tool work แม้ใช้ subscription จึงใช้ Sol เฉพาะงานหนัก, Terra กับงานผลิต/ตรวจทั่วไป และ Luna กับงานกลไก ส่วน Grok ยังใช้โมเดลเดียวและแยกด้วย effort
+**ทำไม Codex แยก Sol/Astra/Luna** — usage allowance คิดตาม model, context, reasoning และ tool work แม้ใช้ subscription จึงใช้ Sol 6 เฉพาะงานหนัก, Astra กับงานผลิต/ตรวจทั่วไป และ Luna กับงานกลไก ส่วน Grok มีโมเดลเดียว (4.7) จึงแยก role ด้วย effort อย่างเดียว
 
 **ช้าและกิน token** — เช็คว่า plan ใช้ `standard` หรือ `high-assurance`, Codex agent มี `fork_turns="none"`, และ role mapping ผ่าน smoke แล้ว ดู usage ก่อน execute/หลังแต่ละ frontier/ก่อน final gate; ถึง budget ceiling ให้ session ตัดสิน ไม่เปิด agent เพิ่มอัตโนมัติ
 
@@ -227,7 +226,7 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 ## เครดิต
 
 - [mattpocock/skills](https://github.com/mattpocock/skills) — grilling, domain-modeling, wayfinder, writing-for-agents และวิธีคิดเรื่อง skill ทั้งหมด
-- [superpowers](https://github.com/obra/superpowers) — subagent-driven-development ที่เป็น execute loop ของฝั่ง Claude Code
+- [superpowers](https://github.com/obra/superpowers) — ต้นแบบของ execute loop (ledger, review package, fix rounds) ที่ `adapters/loop.md` ย่อมาใช้
 - [agentskills.io](https://agentskills.io) — สเปก SKILL.md ที่ทำให้ใช้ข้าม CLI ได้
 
 Private repo สำหรับนักเรียนของ Mew · ถามได้ในคลาส

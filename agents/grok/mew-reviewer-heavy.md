@@ -2,7 +2,7 @@
 name: mew-reviewer-heavy
 description: Conditional high-assurance reviewer for broad, novel, or security-sensitive whole-branch changes.
 prompt_mode: full
-model: grok-4.6
+model: grok-4.7-build-fast
 effort: xhigh
 permission_mode: default
 agents_md: true

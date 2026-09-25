@@ -3,7 +3,7 @@ name: mew-reviewer
 description: >
   Tier-1 and standard branch reviewer for mew-kickoff — checks spec and quality, classifies blocking versus advisory findings, and runs scoped verification independently.
 prompt_mode: full
-model: grok-4.6
+model: grok-4.7-build-fast
 effort: high
 permission_mode: default
 agents_md: true

@@ -5,14 +5,6 @@ set -euo pipefail
 R="$(cd "$(dirname "$0")" && pwd -P)"
 
 echo "== 1/3 prerequisites"
-# superpowers plugin: the Claude Code execute loop (subagent-driven-development). Claude Code only.
-if command -v claude >/dev/null 2>&1; then
-  if claude plugins list 2>/dev/null | grep -q '^ *❯ *superpowers@'; then
-    echo "ok    superpowers plugin (Claude Code)"
-  else
-    echo "..    installing superpowers plugin for Claude Code"
-    claude plugins install superpowers && echo "ok    superpowers plugin installed" || echo "!!    could not install superpowers — run: claude plugins install superpowers"
-  fi
 else
   echo "--    claude not found; skipping superpowers (needed only for Claude Code)"
 fi

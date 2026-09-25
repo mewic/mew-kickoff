@@ -1,6 +1,6 @@
 name = "mew-worker-heavy"
 description = "Heavy implementer for mew-kickoff pipeline — complex multi-file code, hard debugging, security-sensitive work (auth, payments), intricate algorithms. Dispatched with a complete task spec from the plan."
-model = "gpt-5.6-sol"
+model = "gpt-6-sol"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """

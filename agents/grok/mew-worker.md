@@ -3,7 +3,7 @@ name: mew-worker
 description: >
   Default implementer for mew-kickoff pipeline tasks — well-specified code, tests, refactors, and tool-driven production (Gamma/Canva/asset generation). Dispatched with a complete task spec or brief from the plan.
 prompt_mode: full
-model: grok-4.6
+model: grok-4.7-build-fast
 effort: high
 permission_mode: default
 agents_md: true

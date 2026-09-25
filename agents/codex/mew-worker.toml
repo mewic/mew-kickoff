@@ -1,6 +1,6 @@
 name = "mew-worker"
 description = "Default implementer for mew-kickoff pipeline tasks — well-specified code, tests, refactors, and tool-driven production. Dispatched with a complete task spec or brief from the plan."
-model = "gpt-5.6-terra"
+model = "gpt-6-astra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 developer_instructions = """

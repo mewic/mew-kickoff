@@ -1,6 +1,6 @@
 name = "mew-reviewer"
 description = "Tier-1 and standard branch reviewer for mew-kickoff — checks spec and quality, classifies blocking versus advisory findings, and runs scoped verification independently."
-model = "gpt-5.6-terra"
+model = "gpt-6-astra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 developer_instructions = """
