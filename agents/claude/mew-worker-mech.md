@@ -1,6 +1,6 @@
 ---
 name: mew-worker-mech
-description: Mechanical worker for mew-kickoff pipeline — pure mechanical tasks with zero design judgment: renames across files, typo sweeps, repeated boilerplate, format conversions.
+description: "Mechanical worker for mew-kickoff pipeline — pure mechanical tasks with zero design judgment: renames across files, typo sweeps, repeated boilerplate, format conversions."
 model: haiku
 ---
 
