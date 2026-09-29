@@ -102,6 +102,16 @@ GA="$SKILL_DIR/adapters/grok.md"
 grep -qF 'enter_plan_mode' "$GA" && ok "grok adapter skips native plan mode" || bad "grok adapter must skip enter_plan_mode during the pipeline"
 grep -qF 'isolation: worktree' "$GA" && ok "grok adapter pins implementer worktree isolation" || bad "grok adapter must pin isolation: worktree for implementers"
 grep -qF 'Fix round:' "$GA" && grep -qF 'resume_from' "$GA" && ok "grok adapter uses resume_from for fix rounds" || bad "grok adapter must use resume_from for fix rounds"
+grep -q 'subagent_type' "$GA" && bad "grok adapter still names subagent_type; spawn_subagent cannot select an agent" || ok "grok adapter omits subagent_type"
+grep -qF 'omitted type is general-purpose' "$GA" && ok "grok spawn type is general-purpose" || bad "grok adapter must spawn general-purpose"
+grep -qF 'git fetch' "$GA" && grep -qF 'cwd' "$GA" && ok "grok review reads the implementer worktree" || bad "grok adapter must fetch the worktree and point reviewer cwd at it"
+for a in mew-reviewer mew-reviewer-heavy; do
+  f="$HOME/.grok/agents/$a.md"
+  tools=$(grep '^tools:' "$f")
+  printf '%s\n' "$tools" | grep -q 'read_file' && printf '%s\n' "$tools" | grep -q 'run_terminal_command' && ! printf '%s\n' "$tools" | grep -q 'search_replace' && ok "grok $a tool ids are Grok's" || bad "grok $a tools must use read_file and run_terminal_command, not search_replace"
+done
+tools=$(grep '^tools:' "$CRITIC")
+printf '%s\n' "$tools" | grep -q 'read_file' && printf '%s\n' "$tools" | grep -q 'web_fetch' && ! printf '%s\n' "$tools" | grep -Eq 'run_terminal_command|search_replace|Bash|Edit' && ok "grok mew-critic tool ids are Grok's" || bad "grok mew-critic tools must use read_file and web_fetch without a shell"
 grep -qF '/usage' "$GA" && ok "grok adapter usage checkpoint is /usage" || bad "grok adapter must record /usage at checkpoints"
 README="$SKILL_DIR/../../README.md"
 mech=$(grep -F '| `mew-worker-mech`' "$README" || true)

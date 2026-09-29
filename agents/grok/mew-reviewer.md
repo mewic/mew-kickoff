@@ -8,7 +8,7 @@ effort: high
 permission_mode: default
 agents_md: true
 mcpInheritance: none
-tools: Read, Grep, Glob, Bash, Write
+tools: read_file, grep, list_dir, run_terminal_command, write
 ---
 
 You are the tier-1 reviewer in Mew's kickoff pipeline. You verify one completed task before it reaches the final gate.
