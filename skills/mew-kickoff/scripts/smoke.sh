@@ -45,7 +45,11 @@ for ref in grilling domain-modeling security-review; do
 done
 for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-critic code-reviewer; do
   f="$CLAUDE/agents/$a.md"
-  [[ -f "$f" ]] || { bad "claude agent $a missing"; continue; }
+  if [[ ! -f "$f" ]]; then
+    # code-reviewer is optional: without it the security fallback uses mew-reviewer with model: opus.
+    if [[ "$a" == code-reviewer ]]; then printf -- '--    %s\n' "claude agent code-reviewer not installed (optional; security fallback uses mew-reviewer with model: opus)"; else bad "claude agent $a missing"; fi
+    continue
+  fi
   grep -q '^model:' "$f" && ok "claude agent $a (model: $(grep '^model:' "$f" | awk '{print $2}'))" || bad "claude agent $a has no model line"
 done
 grep -Eq '^tools:.*(Bash|Edit)' "$CLAUDE/agents/mew-critic.md" && bad "mew-critic has Bash or Edit; it may only Write its report" || ok "mew-critic has no shell and no Edit"
@@ -89,7 +93,7 @@ for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-reviewer-h
 done
 grep -qF 'model: grok-4.7-build-fast' "$HOME/.grok/agents/mew-worker-mech.md" && grep -qF 'effort: low' "$HOME/.grok/agents/mew-worker-mech.md" && ok "grok mech model economy (grok-4.7-build-fast low)" || bad "grok mew-worker-mech must use grok-4.7-build-fast low"
 grep -qF 'Suggest `high` for interview' "$SKILL_DIR/adapters/grok.md" && ok "grok adapter interview effort is high" || bad "grok adapter must suggest high for interview"
-grep -qF 'only Mew launches' "$SKILL_DIR/adapters/grok.md" && ok "grok heavier review is opt-in" || bad "grok adapter must keep heavier review opt-in"
+grep -qF 'only the user launches' "$SKILL_DIR/adapters/grok.md" && ok "grok heavier review is opt-in" || bad "grok adapter must keep heavier review opt-in"
 CRITIC="$HOME/.grok/agents/mew-critic.md"
 grep -q '^tools:' "$CRITIC" && ok "grok mew-critic has tools allowlist" || bad "grok mew-critic lacks tools allowlist"
 grep -Eq '^tools:.*(Bash|Edit|bash|search_replace|run_terminal_command)' "$CRITIC" && bad "grok mew-critic has shell or Edit" || ok "grok mew-critic has no shell and no Edit"

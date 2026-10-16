@@ -3,7 +3,7 @@
 Read this when the harness is Grok CLI (not Cursor). Status 2026-09-29, checked on Grok 1.0.44: `spawn_subagent` accepts `prompt`, `description`, `background`, `isolation` (`none` | `worktree`), `resume_from`, and `cwd`. An omitted type is general-purpose, at the parent model and effort. The schema has no `model` field, so the execute.md red flag about a dispatch without a model does not apply.
 
 ## Loading skills
-- Grok loads `~/.grok/skills/` and `~/.agents/skills/`; this skill is symlinked into `~/.grok/skills/`. It honors `disable-model-invocation`, so only Mew starts it: `/mew-kickoff`.
+- Grok loads `~/.grok/skills/` and `~/.agents/skills/`; this skill is symlinked into `~/.grok/skills/`. It honors `disable-model-invocation`, so only the user starts it: `/mew-kickoff`.
 - To load `grilling`, `domain-modeling`, or any other skill: read `~/.agents/skills/<name>/SKILL.md` and follow it. The plan template in `SKILL.md` is the plan format. Execute mode then reads `../execute.md`.
 - Arguments are the text after the skill name.
 
@@ -16,7 +16,7 @@ Read this when the harness is Grok CLI (not Cursor). Status 2026-09-29, checked 
 - The read-only explorer is general-purpose with a read-only prompt. The built-in `explore` type cannot be named from this schema.
 - Fix round: `resume_from` the same implementer id with the bounded fix brief. If that id is gone, spawn the same role fresh with that brief.
 - High-assurance rounds 4–5 spawn a fresh child on the `mew-worker-heavy.md` contract, with no `resume_from`. The model stays the parent's.
-- Fill only a few live slots (2 unless Mew raises it). A wider frontier goes in waves.
+- Fill only a few live slots (2 unless the user raises it). A wider frontier goes in waves.
 - Spawned children inherit the parent's MCP servers. Keep MCP instructions out of dispatch prompts.
 
 ## Execute loop
@@ -39,13 +39,13 @@ Children inherit the session effort. `effort:` in a role file applies only to `g
 Record `/usage` (session totals) in the ledger before execute, after every frontier wave, and before Tier 2. At the plan's agent-run or fix-round ceiling, stop automatic expansion and let the session rule on the smallest path to acceptance.
 
 ## Heavier review
-No ultracode equivalent: suggest two children on the `mew-reviewer-heavy` contract with adversarial prompts (correctness, security) and adjudicate. Name the trigger; only Mew launches them.
+No ultracode equivalent: suggest two children on the `mew-reviewer-heavy` contract with adversarial prompts (correctness, security) and adjudicate. Name the trigger; only the user launches them.
 
 ## Security review
 No built-in command: one child on the `mew-reviewer-heavy` contract with a security-focused prompt and `cwd` on the implementer worktree.
 
 ## Fresh session
-Interview ends at the approval gate. Execute is a new Grok session: `/mew-kickoff execute <plan-path>`. If Mew says execute in the interview session, stop and hand back that command.
+Interview ends at the approval gate. Execute is a new Grok session: `/mew-kickoff execute <plan-path>`. If the user says execute in the interview session, stop and hand back that command.
 
 ## Models (2026-09-29)
 One model line: `grok-4.7-build-fast`. Spawn does not select a model or an effort. The contract text is the role.

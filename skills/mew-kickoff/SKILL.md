@@ -1,6 +1,6 @@
 ---
 name: mew-kickoff
-description: Mew's interview-to-delivery pipeline for substantial work. Start it by name; add `execute <plan-file>` to resume an approved plan.
+description: The user's interview-to-delivery pipeline for substantial work. Start it by name; add `execute <plan-file>` to resume an approved plan.
 disable-model-invocation: true
 metadata:
   author: mew
@@ -15,7 +15,7 @@ Do not read `execute.md` in an interview session.
 
 ## Goal
 
-Spend the session model only where sharpness matters — interviewing, specifying, routing, and reviewing. Workers do production work from a complete spec. Output must pass its gates, not leave a draft for Mew to debug.
+Spend the session model only where sharpness matters — interviewing, specifying, routing, and reviewing. Workers do production work from a complete spec. Output must pass its gates, not leave a draft for the user to debug.
 
 1. **Effort economy** — model, effort, and review depth rise with task risk; top effort is paid only where judgment compounds.
 2. **Context economy** — the interview/plan window stays clean; production burns a fresh worker context; state lives on disk (plan, ledger, reports) so the harness can compact freely.
@@ -28,11 +28,11 @@ Spend the session model only where sharpness matters — interviewing, specifyin
 Arguments: the text after the skill name.
 
 - Empty → Steps 0–3 below. The interview session ends at the approval gate.
-- `execute <docs/plans/FILE.md>` → **fresh session only.** Read `execute.md` and follow it with the plan, CONTEXT.md, and referenced ADRs. If this session already ran Steps 1–3, stop and give Mew the exact first message for a new session instead.
+- `execute <docs/plans/FILE.md>` → **fresh session only.** Read `execute.md` and follow it with the plan, CONTEXT.md, and referenced ADRs. If this session already ran Steps 1–3, stop and give the user the exact first message for a new session instead.
 
 ## Step 0 — Triage (off-ramp)
 
-If the request meets **ALL three**: no new design decisions, low risk, and independently verifiable as one bounded change, announce "งานนี้เข้าเกณฑ์ off-ramp" and do it directly with normal self-verification. File count alone never forces the pipeline. Low risk excludes auth, payments, secrets, user-input boundaries, external side effects, data migration, and irreversible operations. Mew can always say "เข้า pipeline เต็ม" to override.
+If the request meets **ALL three**: no new design decisions, low risk, and independently verifiable as one bounded change, announce "งานนี้เข้าเกณฑ์ off-ramp" and do it directly with normal self-verification. File count alone never forces the pipeline. Low risk excludes auth, payments, secrets, user-input boundaries, external side effects, data migration, and irreversible operations. The user can always say "เข้า pipeline เต็ม" to override.
 
 Everything else enters the pipeline.
 
@@ -43,6 +43,8 @@ Check for `CONTEXT.md` and `docs/` in the project root.
 - **Nothing exists** (fresh project): full interview.
 - **Anything exists**: read whatever is there (`CONTEXT.md`, `docs/adr/`, latest plans) FIRST. Then interview only the **delta**. Never re-ask what the docs already answer.
 
+**Inside an AI OS:** when the project folder sits inside a workspace whose parent folder has an `AGENTS.md` describing the business, also read that `AGENTS.md` and the files it points to (such as `business.md` and `brand.md`) before interviewing. They are read-only: never edit them, and never re-ask what they answer.
+
 If the work cannot fit one plan — decisions ahead can't all be named yet, or the effort will span multiple sessions — read `map.md` in this folder and chart the map first: Destination, Decisions so far, Not yet specified, Out of scope. One decision per session; the map is an index, not a store.
 
 ## Step 2 — Interview
@@ -52,7 +54,7 @@ Load `grilling`, then `domain-modeling` as the adapter directs. Follow grilling:
 1. **Deliverable format** — code in repo / markdown doc / Gamma presentation / Canva design / website / images / mix. Record it as a fixed requirement.
 2. **Acceptance criteria** — concrete, checkable "done" conditions per deliverable (for non-code work too: questions it must answer, segments it must cover, slide count, required evidence).
 
-**Facts vs decisions:** a *fact* — anything answerable from the codebase, project docs, or external sources — is never asked; look it up. A *decision* — a choice about what to build or how it should behave — is always put to Mew and waits for his answer. The session never answers a decision on Mew's behalf.
+**Facts vs decisions:** a *fact* — anything answerable from the codebase, project docs, or external sources — is never asked; look it up. A *decision* — a choice about what to build or how it should behave — is always put to the user and waits for their answer. The session never answers a decision on the user's behalf.
 
 **External research (AFK):** when a needed fact lives outside the project (third-party docs, APIs, pricing, specs), dispatch `mew-worker` to research it instead of reading inline: **primary sources only** (official docs, source code, specs — never secondary write-ups), findings written to `docs/research/` as a Markdown file citing each claim's source. The session keeps interviewing/planning while the worker reads.
 
@@ -105,8 +107,8 @@ Before the approval gate, dispatch `mew-critic` with ONLY the plan file and its 
 
 ### 🛑 Approval gate
 
-STOP. Present the plan summary and wait for Mew. Two valid outcomes:
-- **"execute"** → write `approved: <date>` in the Status line, suggest the adapter's execute-session effort, and **end this session**. Give Mew the exact first message for a new session: the skill name plus `execute` and the plan path. Never start code execution here.
+STOP. Present the plan summary and wait for the user. Two valid outcomes:
+- **"execute"** → write `approved: <date>` in the Status line, suggest the adapter's execute-session effort, and **end this session**. Give the user the exact first message for a new session: the skill name plus `execute` and the plan path. Never start code execution here.
 - **"พักไว้" / defer** → write `approved: <date>`, `executed: deferred` and end.
 
 **Session-authored consulting / strategy / copy** may be written in this interview session after approval (the session owns that context). Write it to `docs/deliverables/`. Production code and marketing-tool execution still wait for a fresh `execute` session.
@@ -124,7 +126,7 @@ docs/research/        AFK research, primary sources cited
 docs/deliverables/    consulting outputs
 ```
 
-**Language:** technical docs (plans, ADRs, CONTEXT.md) in English; consulting deliverables in Thai; production copy in the language of the actual asset — embedding Thai (or other asset-language) copy blocks inside an English plan file is the intended format. Interviews are conducted in Thai.
+**Language:** technical docs (plans, ADRs, CONTEXT.md) use the document language the user's instructions set (`AGENTS.md`, `CLAUDE.md`, or the harness's equivalent). Only an explicit rule about document or file language counts; a chat-language rule does not. With none set, technical docs are in English. Consulting deliverables in Thai; production copy in the language of the actual asset — embedding Thai (or other asset-language) copy blocks inside the plan file is the intended format. Interviews are conducted in Thai.
 
 ## Red Flags — stop and re-read this skill
 
@@ -132,5 +134,5 @@ docs/deliverables/    consulting outputs
 - Executing code, reading `execute.md`, or starting Step 4 in the interview session.
 - A plan restates CONTEXT.md/ADR content.
 - Re-interviewing facts already recorded in project docs.
-- A design decision answered on Mew's behalf.
+- A design decision answered on the user's behalf.
 - Asking one question per turn when the frontier held several.

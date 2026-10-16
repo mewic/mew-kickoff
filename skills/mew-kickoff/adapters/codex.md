@@ -22,7 +22,7 @@ Read `adapters/loop.md`. Standard medium-risk whole-branch review uses `mew-revi
 Interview ends at the approval gate. Execute is a new Codex session: `$mew-kickoff execute <plan-path>`.
 
 ## Effort and usage
-Session effort comes from `model_reasoning_effort` in `~/.codex/config.toml` or `/model` in the TUI. Suggest `xhigh` for interview, plan, and Tier 2; `high` for Step 4. Mew performs the switch.
+Session effort comes from `model_reasoning_effort` in `~/.codex/config.toml` or `/model` in the TUI. Suggest `xhigh` for interview, plan, and Tier 2; `high` for Step 4. The user performs the switch.
 
 When available, capture `/status` or the usage dashboard value before execution, after every frontier wave, and before Tier 2. Record it in the ledger. Usage is a guardrail, not a reason to skip an acceptance criterion; at the declared budget ceiling, stop automatic agent expansion and let the session rule on the smallest safe path.
 

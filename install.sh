@@ -5,22 +5,21 @@ set -euo pipefail
 R="$(cd "$(dirname "$0")" && pwd -P)"
 
 echo "== 1/3 prerequisites"
-else
-  echo "--    claude not found; skipping superpowers (needed only for Claude Code)"
-fi
 # Matt Pocock's skills: grilling + domain-modeling run the interview; tdd/research/wayfinder are used by the plan and research steps.
 need=""
 for s in grilling domain-modeling; do
   [[ -f "$HOME/.agents/skills/$s/SKILL.md" || -f "$HOME/.claude/skills/$s/SKILL.md" ]] || need="$need $s"
 done
+# Non-interactive: -s names the skills, -a '*' targets every agent, -y skips the confirmation; npx --yes skips npx's own download prompt.
+add="npx --yes skills@latest add mattpocock/skills -s grilling domain-modeling tdd research wayfinder -g -a '*' -y"
 if [[ -z "$need" ]]; then
   echo "ok    mattpocock skills (grilling, domain-modeling)"
 else
-  echo "..    missing:$need — starting the installer. Pick at least grilling, domain-modeling, tdd, research, wayfinder (or all), and install to ALL agents (*)."
+  echo "..    missing:$need — installing grilling, domain-modeling, tdd, research, wayfinder for all agents (no prompts)"
   if command -v npx >/dev/null 2>&1; then
-    npx skills@latest add mattpocock/skills -g -a '*' || echo "!!    installer failed — run manually: npx skills@latest add mattpocock/skills -g -a '*'"
+    npx --yes skills@latest add mattpocock/skills -s grilling domain-modeling tdd research wayfinder -g -a '*' -y </dev/null || echo "!!    installer failed — run manually: $add"
   else
-    echo "!!    npx not found — install Node.js, then run: npx skills@latest add mattpocock/skills -g -a '*'"
+    echo "!!    npx not found — install Node.js, then run: $add"
   fi
 fi
 
