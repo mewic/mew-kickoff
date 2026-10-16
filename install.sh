@@ -24,22 +24,22 @@ else
 fi
 
 echo "== 2/3 linking this repo into the CLIs"
-mkdir -p ~/.claude/skills ~/.agents/skills ~/.grok/skills ~/.cursor/skills ~/.claude/agents ~/.codex/agents ~/.grok/agents ~/.cursor/agents
-ln -sfn "$R/skills/mew-kickoff" ~/.claude/skills/mew-kickoff          # Claude Code (follows symlinked skill dirs — verified 2026-09-03)
-ln -sfn "$R/skills/mew-kickoff" ~/.agents/skills/mew-kickoff          # Codex personal skills dir; Grok reads it too
-ln -sfn ../../.agents/skills/mew-kickoff ~/.grok/skills/mew-kickoff   # Grok's own skills dir, same pattern as its other installs
-ln -sfn "$R/skills/mew-kickoff" ~/.cursor/skills/mew-kickoff          # Cursor personal skills dir
+mkdir -p "$HOME/.claude/skills" "$HOME/.agents/skills" "$HOME/.grok/skills" "$HOME/.cursor/skills" "$HOME/.claude/agents" "$HOME/.codex/agents" "$HOME/.grok/agents" "$HOME/.cursor/agents"
+ln -sfn "$R/skills/mew-kickoff" "$HOME/.claude/skills/mew-kickoff"          # Claude Code (follows symlinked skill dirs — verified 2026-09-03)
+ln -sfn "$R/skills/mew-kickoff" "$HOME/.agents/skills/mew-kickoff"          # Codex personal skills dir; Grok reads it too
+ln -sfn ../../.agents/skills/mew-kickoff "$HOME/.grok/skills/mew-kickoff"   # Grok's own skills dir, same pattern as its other installs
+ln -sfn "$R/skills/mew-kickoff" "$HOME/.cursor/skills/mew-kickoff"          # Cursor personal skills dir
 for a in mew-worker mew-worker-heavy mew-worker-mech mew-reviewer mew-critic; do
-  ln -sfn "$R/agents/claude/$a.md"   ~/.claude/agents/$a.md
-  ln -sfn "$R/agents/codex/$a.toml"  ~/.codex/agents/$a.toml
-  ln -sfn "$R/agents/grok/$a.md"     ~/.grok/agents/$a.md
-  ln -sfn "$R/agents/cursor/$a.md"   ~/.cursor/agents/$a.md
+  ln -sfn "$R/agents/claude/$a.md"   "$HOME/.claude/agents/$a.md"
+  ln -sfn "$R/agents/codex/$a.toml"  "$HOME/.codex/agents/$a.toml"
+  ln -sfn "$R/agents/grok/$a.md"     "$HOME/.grok/agents/$a.md"
+  ln -sfn "$R/agents/cursor/$a.md"   "$HOME/.cursor/agents/$a.md"
 done
-ln -sfn "$R/agents/codex/mew-reviewer-heavy.toml" ~/.codex/agents/mew-reviewer-heavy.toml
-ln -sfn "$R/agents/grok/mew-reviewer-heavy.md" ~/.grok/agents/mew-reviewer-heavy.md
-ln -sfn "$R/agents/cursor/mew-reviewer-heavy.md" ~/.cursor/agents/mew-reviewer-heavy.md
+ln -sfn "$R/agents/codex/mew-reviewer-heavy.toml" "$HOME/.codex/agents/mew-reviewer-heavy.toml"
+ln -sfn "$R/agents/grok/mew-reviewer-heavy.md" "$HOME/.grok/agents/mew-reviewer-heavy.md"
+ln -sfn "$R/agents/cursor/mew-reviewer-heavy.md" "$HOME/.cursor/agents/mew-reviewer-heavy.md"
 echo "ok    symlinks written (skill + agents for Claude/Codex/Grok/Cursor + conditional heavy reviewers)"
 
 echo "== 3/3 next"
 echo "Open a NEW session in each CLI you use (skills and agents are read at session start), then verify:"
-echo "  bash $R/skills/mew-kickoff/scripts/smoke.sh"
+echo "  bash \"$R/skills/mew-kickoff/scripts/smoke.sh\""

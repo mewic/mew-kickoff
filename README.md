@@ -62,7 +62,7 @@ Windows ต้องใช้สิทธิ์พิเศษในการส
 1. ถ้ายังไม่มีโฟลเดอร์ %USERPROFILE%\mew-kickoff ให้ git clone https://github.com/mewic/mew-kickoff.git ไปไว้ที่นั่น
    ถ้ามีแล้ว ให้รัน git pull ในโฟลเดอร์นั้น
 2. ถ้ายังไม่มีโฟลเดอร์ %USERPROFILE%\.agents\skills\grilling ให้รัน
-   npx --yes skills@latest add mattpocock/skills -s grilling domain-modeling tdd research wayfinder -g -a "*" -y
+   npx --yes skills@latest add mattpocock/skills -s grilling domain-modeling tdd research wayfinder -g -a "*" -y --copy
 3. คัดลอกโฟลเดอร์ %USERPROFILE%\mew-kickoff\skills\mew-kickoff ทั้งโฟลเดอร์ไปไว้ที่ 3 ที่นี้ ถ้าที่ปลายทางมีโฟลเดอร์ mew-kickoff เดิม ให้ลบเฉพาะโฟลเดอร์ mew-kickoff นั้นก่อนแล้วค่อยคัดลอก
    - %USERPROFILE%\.claude\skills\mew-kickoff
    - %USERPROFILE%\.agents\skills\mew-kickoff

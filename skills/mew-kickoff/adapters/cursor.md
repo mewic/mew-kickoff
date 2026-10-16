@@ -3,7 +3,7 @@
 Read this when the harness is Cursor — the system prompt names Cursor, or the `Task` tool exists and `spawn_subagent` / `spawn_agent` / the Skill tool do not. Status 2026-10-17 (cursor.com/docs/agent/subagents, checked on cursor-agent 2026.09.28 and 2026.10.16): custom subagents are Markdown files in `.cursor/agents/` (project) or `~/.cursor/agents/` (user), and `Task` launches one by name when it appears in `Task`'s subagent type list. On both builds, project and plugin agents were listed but the user-level `~/.cursor/agents/mew-*.md` files were not, so check the list before dispatching.
 
 ## Loading skills
-- This skill is symlinked at `~/.cursor/skills/mew-kickoff`. Cursor also loads `~/.agents/skills/` and `~/.claude/skills/`, so it may list `mew-kickoff` more than once; every copy is the same folder. Invoke it by name (`/mew-kickoff`); model-invocation is disabled.
+- This skill is symlinked at `~/.cursor/skills/mew-kickoff`. Per cursor.com/docs/context/skills (2026-10-17), Cursor loads user skills from `~/.cursor/skills/` and `~/.agents/skills/`, plus `~/.claude/skills/` and `~/.codex/skills/` for compatibility. install.sh links the skill into the first three, so Cursor may list `mew-kickoff` more than once; every copy is the same folder. Invoke it by name (`/mew-kickoff`); model-invocation is disabled.
 - Load `grilling`, `domain-modeling`, or another named skill by reading `~/.agents/skills/<name>/SKILL.md` (fallback `~/.claude/skills/<name>/SKILL.md`) and following it. The plan template in `SKILL.md` is the plan format. Execute mode then reads `../execute.md`.
 - Arguments: the text after the skill name.
 
