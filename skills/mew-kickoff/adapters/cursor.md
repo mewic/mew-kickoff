@@ -1,6 +1,6 @@
 # Adapter: Cursor (IDE agent and CLI)
 
-Read this when the harness is Cursor — the system prompt names Cursor, or the `Task` tool exists and `spawn_subagent` / `spawn_agent` / the Skill tool do not. Status 2026-10-17 (cursor.com/docs/agent/subagents, checked on cursor-agent 2026.09.28): custom subagents are Markdown files in `.cursor/agents/` (project) or `~/.cursor/agents/` (user), and `Task` launches one by name when it appears in `Task`'s subagent type list. On that build, project and plugin agents were listed but the user-level `~/.cursor/agents/mew-*.md` files were not, so check the list before dispatching.
+Read this when the harness is Cursor — the system prompt names Cursor, or the `Task` tool exists and `spawn_subagent` / `spawn_agent` / the Skill tool do not. Status 2026-10-17 (cursor.com/docs/agent/subagents, checked on cursor-agent 2026.09.28 and 2026.10.16): custom subagents are Markdown files in `.cursor/agents/` (project) or `~/.cursor/agents/` (user), and `Task` launches one by name when it appears in `Task`'s subagent type list. On both builds, project and plugin agents were listed but the user-level `~/.cursor/agents/mew-*.md` files were not, so check the list before dispatching.
 
 ## Loading skills
 - This skill is symlinked at `~/.cursor/skills/mew-kickoff`. Cursor also loads `~/.agents/skills/` and `~/.claude/skills/`, so it may list `mew-kickoff` more than once; every copy is the same folder. Invoke it by name (`/mew-kickoff`); model-invocation is disabled.
