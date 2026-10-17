@@ -5,6 +5,7 @@ Read this when the harness is Codex. Status 2026-09-04: skill path, native agent
 ## Loading skills
 - Personal skills load from `~/.agents/skills/`; this skill is symlinked there. Invoke it as `$mew-kickoff` or through `/skills`. Implicit invocation is disabled in `agents/openai.yaml`.
 - Load `grilling`, `domain-modeling`, or another named skill by reading `~/.agents/skills/<name>/SKILL.md` completely and following it. The template in `SKILL.md` is the plan format. Execute mode then reads `../execute.md`.
+- Ask every interview round as a plain assistant message, never through `request_user_input_async`. That tool is for quick questions during work; mid-interview it shrinks rounds to one or two questions.
 - `$ARGUMENTS` substitution is unverified. Treat text after `$mew-kickoff` as the arguments.
 
 ## Agents and fresh dispatch
