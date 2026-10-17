@@ -1,6 +1,6 @@
 # Execute (fresh session only)
 
-Read this only in a session whose first pipeline argument is `execute <plan-file>`. If this session already ran the interview, stop and hand Mew a new-session first message instead.
+Read this only in a session whose first pipeline argument is `execute <plan-file>`. If this session already ran the interview, stop and hand the user a new-session first message instead.
 
 Prereq: the adapter is already read. Open the plan, CONTEXT.md, and referenced ADRs. If `approved:` is pending, present the summary and wait. Suggest the adapter's execute-session effort; return to top effort before the Tier-2 gate.
 
@@ -35,9 +35,9 @@ At every plan checkpoint supported by the harness, record usage in the ledger. I
 
 **Tier 2 — final gate (session model, top effort):** read the Tier-1 summaries, any profile-required whole-branch/security findings, the final verification result, and the acceptance criteria. Only this gate can declare the work done.
 
-**Non-code deliverables:** dispatch `mew-critic` with ONLY the acceptance criteria + the deliverable (not the conversation). The session revises per critic feedback, three-round ceiling, then report to Mew.
+**Non-code deliverables:** dispatch `mew-critic` with ONLY the acceptance criteria + the deliverable (not the conversation). The session revises per critic feedback, three-round ceiling, then report to the user.
 
-**Stopping:** ask before an irreversible operation, a security-sensitive action, a side effect outside the worktree (merge, push, publish), a plan broken past guessing, or a breaker that leaves a security-sensitive finding open. Heavier review than the tiers give: the adapter's **Heavier review** section, suggested to Mew with the trigger named — never launched on the session's own initiative.
+**Stopping:** ask before an irreversible operation, a security-sensitive action, a side effect outside the worktree (merge, push, publish), a plan broken past guessing, or a breaker that leaves a security-sensitive finding open. Heavier review than the tiers give: the adapter's **Heavier review** section, suggested to the user with the trigger named — never launched on the session's own initiative.
 
 ## Step 6 — Deliver
 
@@ -50,4 +50,4 @@ Report delivered work, gate evidence, criteria, asset links, and frontier-wave c
 - Independent tasks dispatched one at a time when the frontier held several.
 - A reviewer dispatched for a low-risk task, or none for a medium/high-risk one.
 - A built-in agent dispatched without a model, a full report pasted into the session, the session reading source files in Step 4, or running without the adapter.
-- Automatic heavier review without Mew naming the trigger.
+- Automatic heavier review without the user naming the trigger.

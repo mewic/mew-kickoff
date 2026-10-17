@@ -13,32 +13,32 @@ Read this when the harness is Claude Code (the system prompt says so). Everythin
 
 ## Execute loop
 Read `adapters/loop.md`. Claude Code overlays:
-- Implementer = the Execution Directive agent as `subagent_type`; frontier tasks run in parallel (the Blocked-by column is the conflict guard). Implementers work in the task's worktree (Orca or `EnterWorktree`); reviewers, critics, and explorers read in place.
+- Implementer = the Execution Directive agent as `subagent_type`; frontier tasks run in parallel (the Blocked-by column is the conflict guard). Implementers work in the task's worktree (the harness's worktree tool); reviewers, critics, and explorers read in place.
 - Fix round = a fresh dispatch of the same agent with the bounded fix brief; `SendMessage` may continue a subagent that is still live.
 - The session never opens a full report unprompted: read the ≤150-word reply, open the report file only when it flags something.
 - Full reports go in `docs/plans/reports/<plan-slug>/`.
 
 ## Context
-Opus 5.5 and Fable 5.1 ship with a 1M window only; there is no 200K variant. The lever is the auto-compact window: `~/.claude/settings.json` sets `"autoCompactWindow": 300000`, so Claude Code compacts at ~300K (interviews usually finish under that; execute sessions compact a few times) and the plan, ledger, and reports on disk carry state across compactions. Raise it for one session only (`/autocompact 1000000`, or the `--autocompact` flag) when Mew asks for a whole-codebase audit or a cross-system review that must sit in one window. `/handoff` is for stopping, not for controlling context.
+Opus 5.5 and Fable 5.1 ship with a 1M window only; there is no 200K variant. The lever is the auto-compact window (`autoCompactWindow` in the user's Claude Code settings, or `/autocompact`). When it is set, for example to `300000`, Claude Code compacts at that size (interviews usually finish under ~300K; execute sessions compact a few times), and the plan, ledger, and reports on disk carry state across compactions. Raise it for one session only (`/autocompact 1000000`, or the `--autocompact` flag) when the user asks for a whole-codebase audit or a cross-system review that must sit in one window. `/handoff` is for stopping, not for controlling context.
 
 ## Fresh session
 Interview ends at the approval gate. Execute is a new Claude Code session starting with `mew-kickoff execute <plan-path>`.
 
 ## Effort
-`/effort`: `max` for interview, plan, and the Tier-2 gate; suggest `high` for Step 4 at the approval gate and at the start of an execute session; suggest `max` again before the Tier-2 gate. Only Mew switches.
+`/effort`: `max` for interview, plan, and the Tier-2 gate; suggest `high` for Step 4 at the approval gate and at the start of an execute session; suggest `max` again before the Tier-2 gate. Only the user switches.
 
 ## Heavier review
-`/effort ultracode` — read `../ultracode.md` for the four triggers; the session suggests, naming the trigger; only Mew switches.
+`/effort ultracode` — read `../ultracode.md` for the four triggers; the session suggests, naming the trigger; only the user switches.
 
 ## Security review
-Invoke the `security-review` skill when Step 5 calls for it. In a repo with no git remote it fails (known limitation) — dispatch the `code-reviewer` agent (`~/.claude/agents/code-reviewer.md`) with `model: opus` and a security-focused prompt instead.
+Invoke the `security-review` skill when Step 5 calls for it. In a repo with no git remote it fails (known limitation). When it fails, dispatch the `code-reviewer` agent (`~/.claude/agents/code-reviewer.md`) with `model: opus` and a security-focused prompt when it is installed; otherwise dispatch `mew-reviewer` with `model: opus` and a security brief (boundaries, secrets, least privilege, injection, abuse cases).
 
 ## Models (2026-09-25)
 Usage facts (support.claude.com, "Claude Fable models on your plan"): Fable usage counts against the **same weekly allowance** as Opus/Sonnet/Haiku, the Fable bar is a 50% ceiling inside it, and Fable burns the allowance faster. Fable is therefore never a way to get extra quota; spend it only where judgment compounds.
 
 | Role | Agent | Model | Effort |
 |------|-------|-------|--------|
-| Session: interview, plan, copy, final gate | — | Opus 5.5 (Fable 5.1 when Mew chooses) | max |
+| Session: interview, plan, copy, final gate | — | Opus 5.5 (Fable 5.1 when the user chooses) | max |
 | Session: routing in Step 4 | — | Opus 5.5 | high |
 | Adversarial review | — | Fable 5.1 | ultracode |
 | Heavy code | `mew-worker-heavy` | Opus 5.5 (`opus`) | xhigh |

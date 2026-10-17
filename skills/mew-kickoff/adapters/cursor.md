@@ -1,38 +1,39 @@
-# Adapter: Cursor (IDE agent)
+# Adapter: Cursor (IDE agent and CLI)
 
-Read this when the harness is Cursor — the system prompt names Cursor, or the `Task` tool exists and `spawn_subagent` / `spawn_agent` / the Skill tool do not. Status 2026-09-06: skill files are readable via Read; custom `~/.cursor/agents/mew-*.md` exist as role contracts; `Task` accepts only its built-in `subagent_type` enum, so roles are applied through the prompt, not the type name.
+Read this when the harness is Cursor — the system prompt names Cursor, or the `Task` tool exists and `spawn_subagent` / `spawn_agent` / the Skill tool do not. Status 2026-10-17 (cursor.com/docs/agent/subagents, checked on cursor-agent 2026.09.28 and 2026.10.16): custom subagents are Markdown files in `.cursor/agents/` (project) or `~/.cursor/agents/` (user), and `Task` launches one by name when it appears in `Task`'s subagent type list. On both builds, project and plugin agents were listed but the user-level `~/.cursor/agents/mew-*.md` files were not, so check the list before dispatching.
 
 ## Loading skills
-- This skill is symlinked at `~/.cursor/skills/mew-kickoff`. Invoke it by name (`mew-kickoff`); model-invocation is disabled.
+- This skill is symlinked at `~/.cursor/skills/mew-kickoff`. Per cursor.com/docs/context/skills (2026-10-17), Cursor loads user skills from `~/.cursor/skills/` and `~/.agents/skills/`, plus `~/.claude/skills/` and `~/.codex/skills/` for compatibility. install.sh links the skill into the first three, so Cursor may list `mew-kickoff` more than once; every copy is the same folder. Invoke it by name (`/mew-kickoff`); model-invocation is disabled.
 - Load `grilling`, `domain-modeling`, or another named skill by reading `~/.agents/skills/<name>/SKILL.md` (fallback `~/.claude/skills/<name>/SKILL.md`) and following it. The plan template in `SKILL.md` is the plan format. Execute mode then reads `../execute.md`.
 - Arguments: the text after the skill name.
 
 ## Agents and dispatch
-- Role contracts: `~/.cursor/agents/mew-{worker,worker-heavy,worker-mech,reviewer,reviewer-heavy,critic}.md`. They are not valid `Task` `subagent_type` values.
-- Dispatch recipe:
+- Role contracts: `~/.cursor/agents/mew-{worker,worker-heavy,worker-mech,reviewer,reviewer-heavy,critic}.md`. They carry no `model` line, so a launch inherits this chat's model unless the call names one.
+- Named dispatch (preferred): when the role name is in `Task`'s subagent type list, call `Task` with that name as the type, `model` from the table below, and the complete task spec or exact file paths (plan, brief, report path, review package, Global Constraints). Demand a ≤150-word reply and a report file.
+- Fallback recipe, when the role name is not listed:
   1. `Task` with `subagent_type` = `generalPurpose` for implement / review / critic, or `explore` for the read-only Step-4 explorer.
   2. `model` from the table below. Use only slugs the `Task` tool lists. `inherit` keeps this chat's model.
   3. Prompt, in order: "Follow `~/.cursor/agents/<role>.md` as your system contract." Then the complete task spec or exact file paths (plan, brief, report path, review package, Global Constraints). Demand a ≤150-word reply and a report file.
 - Fix rounds: `Task` `resume` on the same implementer id with a bounded fix brief. If resume is unavailable, spawn the same role again with that brief.
-- Parallel frontier: several `Task` calls in one message. Cap live children at 2 unless Mew raises it; extra frontier work waits for the next wave.
-- Research (Step 2 AFK) and marketing production use the `mew-worker` contract via `generalPurpose`.
+- Parallel frontier: several `Task` calls in one message. Cap live children at 2 unless the user raises it; extra frontier work waits for the next wave.
+- Research (Step 2 AFK) and marketing production use the `mew-worker` role (named, or its contract via `generalPurpose`).
 
 ## Execute loop
 `adapters/loop.md`. Standard medium-risk whole-branch review uses `mew-reviewer`; high-assurance or high-risk whole-branch/security review uses `mew-reviewer-heavy`.
 
 ## Effort and usage
-Cursor has no `/effort` switch. Session cost is the model Mew picked for this chat. Suggest Grok for interview, plan, and the execute chat; do not switch the session to Sol.
+Cursor has no `/effort` switch. Session cost is the model the user picked for this chat. Suggest Grok for interview, plan, and the execute chat; do not switch the session to Sol.
 
 Record child-run count in the ledger before execute, after every frontier wave, and before Tier 2. At the plan's agent-run or fix-round ceiling, stop automatic expansion and let the session rule on the smallest path to acceptance.
 
 ## Heavier review
-No ultracode. Suggest two `generalPurpose` children on `mew-reviewer-heavy` (correctness, security) and adjudicate. Name the trigger; only Mew launches them.
+No ultracode. Suggest two `mew-reviewer-heavy` children (named, or `generalPurpose` on that contract): correctness and security, then adjudicate. Name the trigger; only the user launches them.
 
 ## Security review
-`Task` `security-review` when Step 5 calls for it. If that type is unavailable, one `generalPurpose` child on `mew-reviewer-heavy` with a security brief over the review package.
+`Task` `security-review` when Step 5 calls for it. If that type is unavailable, one `mew-reviewer-heavy` child (named, or `generalPurpose` on that contract) with a security brief over the review package.
 
 ## Fresh session
-Interview ends at the approval gate. Execute is a **new Cursor chat** whose first message is `mew-kickoff execute <plan-path>`. If Mew says execute in the interview chat, stop and hand back that first message.
+Interview ends at the approval gate. Execute is a **new Cursor chat** whose first message is `mew-kickoff execute <plan-path>`. If the user says execute in the interview chat, stop and hand back that first message.
 
 ## Models (2026-09)
 

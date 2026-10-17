@@ -27,6 +27,86 @@
 
 ---
 
+## สำหรับนักเรียน: ติดตั้งและเริ่มใช้
+
+### mew-kickoff คืออะไร
+
+สกิลที่มิวใช้ทำงานชิ้นใหญ่กับ AI ทุกวัน เป็นตัวเดียวกับที่มิวใช้ ไม่ใช่รุ่นย่อ AI จะสัมภาษณ์คุณเป็นรอบ เขียนแผน แล้วหยุดรอคุณอนุมัติ พออนุมัติแล้ว คุณเปิด session ใหม่สั่ง execute แล้ว AI จะแจกงานให้ agent ย่อยทำ ตรวจงาน และส่งมอบพร้อมหลักฐาน
+
+### ต้องมีอะไร
+
+- แผนรายเดือนราว $100 ของเครื่องมือใดเครื่องมือหนึ่ง: Claude Code (Max 5x), Codex (ChatGPT Pro) หรือ Cursor (Super) แผน $20 ไม่พอสำหรับงานแบบในคอร์ส
+- git ในเครื่อง (Windows: ติดตั้ง Git for Windows จาก git-scm.com ก่อน)
+- Node.js (คำสั่ง `npx`) ใช้ติดตั้งสกิล `grilling` และ `domain-modeling` ที่ mew-kickoff ใช้ตอนสัมภาษณ์ ถ้ายังไม่มี ให้ AI ติดตั้งให้ก่อน
+
+### ติดตั้ง: คัดลอกข้อความนี้ไปส่งให้ AI ของคุณ
+
+**Mac**
+
+```text
+ช่วยติดตั้ง mew-kickoff ให้ฉัน ทำทีละข้อ แล้วสรุปผลให้ฉันฟัง
+1. ถ้ายังไม่มีโฟลเดอร์ ~/mew-kickoff ให้รัน git clone https://github.com/mewic/mew-kickoff.git ~/mew-kickoff
+   ถ้ามีแล้ว ให้รัน git -C ~/mew-kickoff pull
+2. รัน bash ~/mew-kickoff/install.sh
+3. รัน bash ~/mew-kickoff/skills/mew-kickoff/scripts/smoke.sh แล้วบอกฉันว่าบรรทัดสุดท้ายเป็น SMOKE: PASS หรือไม่ ถ้ามีบรรทัดที่ขึ้นต้นด้วย FAIL ให้อธิบายว่าแต่ละบรรทัดแปลว่าอะไร
+4. เตือนฉันว่าห้ามลบหรือย้ายโฟลเดอร์ ~/mew-kickoff เพราะสกิลลิงก์มาที่โฟลเดอร์นี้
+5. บอกให้ฉันปิด session นี้แล้วเปิดใหม่
+```
+
+**Windows**
+
+Windows ต้องใช้สิทธิ์พิเศษในการสร้าง symlink จึงใช้วิธีคัดลอกไฟล์ชุดเดียวกันไปไว้ที่เดียวกันแทน ผลคือต้องส่งข้อความนี้ให้ AI อีกครั้งทุกครั้งที่อัปเดต
+
+```text
+ช่วยติดตั้ง mew-kickoff บน Windows ให้ฉัน ใช้ PowerShell ทำทีละข้อ แล้วสรุปผลให้ฉันฟัง ห้ามสร้าง symlink ให้คัดลอกไฟล์แทน
+1. ถ้ายังไม่มีโฟลเดอร์ %USERPROFILE%\mew-kickoff ให้ git clone https://github.com/mewic/mew-kickoff.git ไปไว้ที่นั่น
+   ถ้ามีแล้ว ให้รัน git pull ในโฟลเดอร์นั้น
+2. ถ้ายังไม่มีโฟลเดอร์ %USERPROFILE%\.agents\skills\grilling ให้รัน
+   npx --yes skills@latest add mattpocock/skills -s grilling domain-modeling tdd research wayfinder -g -a "*" -y --copy
+3. คัดลอกโฟลเดอร์ %USERPROFILE%\mew-kickoff\skills\mew-kickoff ทั้งโฟลเดอร์ไปไว้ที่ 3 ที่นี้ ถ้าที่ปลายทางมีโฟลเดอร์ mew-kickoff เดิม ให้ลบเฉพาะโฟลเดอร์ mew-kickoff นั้นก่อนแล้วค่อยคัดลอก
+   - %USERPROFILE%\.claude\skills\mew-kickoff
+   - %USERPROFILE%\.agents\skills\mew-kickoff
+   - %USERPROFILE%\.cursor\skills\mew-kickoff
+4. คัดลอกไฟล์ agent ไปทับของเดิม สร้างโฟลเดอร์ถ้ายังไม่มี
+   - %USERPROFILE%\mew-kickoff\agents\claude\*.md ไปที่ %USERPROFILE%\.claude\agents\
+   - %USERPROFILE%\mew-kickoff\agents\codex\*.toml ไปที่ %USERPROFILE%\.codex\agents\
+   - %USERPROFILE%\mew-kickoff\agents\cursor\*.md ไปที่ %USERPROFILE%\.cursor\agents\
+5. ห้ามแตะไฟล์อื่นในโฟลเดอร์เหล่านี้ สรุปให้ฉันว่าคัดลอกอะไรไปไว้ที่ไหน แล้วบอกให้ฉันปิด session นี้แล้วเปิดใหม่
+```
+
+บน Windows ไม่ต้องรัน `smoke.sh` เพราะมันเช็ค symlink ที่ Windows ไม่ได้ใช้ ขั้นตอน Windows ตรวจกับเอกสารของแต่ละเครื่องมือแล้ว แต่ยังไม่ได้ลองบนเครื่อง Windows จริง ที่เก็บสกิลและ agent ของแต่ละเครื่องมือ (`~` ในเอกสารคือ `%USERPROFILE%` บน Windows):
+
+| เครื่องมือ | โฟลเดอร์สกิล | โฟลเดอร์ agent | เอกสาร |
+|---|---|---|---|
+| Claude Code | `%USERPROFILE%\.claude\skills\` | `%USERPROFILE%\.claude\agents\` | [skills](https://code.claude.com/docs/en/skills) · [subagents](https://code.claude.com/docs/en/sub-agents) · [settings](https://code.claude.com/docs/en/settings) ("On Windows, `~/.claude` means `%USERPROFILE%\.claude`") |
+| Codex | `%USERPROFILE%\.agents\skills\` | `%USERPROFILE%\.codex\agents\` | [skills](https://learn.chatgpt.com/docs/build-skills) · [subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents) · [Windows](https://learn.chatgpt.com/docs/windows/windows-sandbox) |
+| Cursor | `%USERPROFILE%\.cursor\skills\` | `%USERPROFILE%\.cursor\agents\` | [skills](https://cursor.com/docs/context/skills) · [subagents](https://cursor.com/docs/agent/subagents) |
+
+### เริ่มใช้
+
+1. เปิด CLI ในโฟลเดอร์โปรเจกต์ของ AI OS เช่น `ร้านของฉัน/line-bot/` อย่าเริ่มที่รากของ AI OS
+2. พิมพ์ชื่อสกิลตามด้วยสิ่งที่อยากได้
+   - Claude Code และ Cursor: `/mew-kickoff อยากได้ LINE ที่ตอบคำถามลูกค้าและรับจองเอง`
+   - Codex: `$mew-kickoff อยากได้ LINE ที่ตอบคำถามลูกค้าและรับจองเอง`
+3. AI อ่าน `AGENTS.md`, `business.md` และ `brand.md` ที่รากของ AI OS ก่อน (อ่านอย่างเดียว ไม่แก้) แล้วถามเป็นรอบ ทุกข้อมีเลขและคำตอบแนะนำ ตอบตามเลขข้อ หรือบอกว่า "ตามที่แนะนำ" ก็ได้
+4. แผนเขียนเป็นภาษาที่ `AGENTS.md` กำหนด ถ้าตั้ง AI OS ตามคอร์ส แผนจะเป็นภาษาไทย
+
+### หลังอนุมัติแผน: เปิด session ใหม่เพื่อ execute
+
+ตอบ `execute` ที่จุดอนุมัติ AI จะจบ session นี้และให้ข้อความแรกสำหรับ session ใหม่ ปิดแล้วเปิด CLI ใหม่ในโฟลเดอร์โปรเจกต์เดิม แล้ววางข้อความนั้น เช่น `/mew-kickoff execute docs/plans/<ไฟล์แผน>.md` (Codex ใช้ `$mew-kickoff execute ...`) session ใหม่เริ่มด้วยบริบทสะอาด ไม่แบกบทสนทนาตอนสัมภาษณ์ไปด้วย จึงถูกกว่าและแม่นกว่า
+
+### ถ้าเจอ usage limit
+
+- ลด effort ลง: Claude Code พิมพ์ `/effort high` หรือ `/effort medium` · Codex เลือก reasoning ที่ต่ำลงใน `/model` · Cursor ไม่มี `/effort` ให้เปลี่ยนโมเดลของแชตเป็นตัวที่ถูกลง
+- ถ้าโควตาหมดกลางงาน รอรอบรีเซ็ต แล้วเปิด session ใหม่ด้วยข้อความ execute เดิม แผนและบันทึกความคืบหน้าอยู่ในไฟล์ AI จึงทำต่อจากจุดที่ค้างได้
+
+### อัปเดต
+
+- Mac: ส่งข้อความติดตั้ง Mac ด้านบนให้ AI อีกครั้ง (มันจะ pull ลิงก์ใหม่ และเช็ค SMOKE) แล้วเปิด session ใหม่
+- Windows: ส่งข้อความติดตั้ง Windows ด้านบนให้ AI อีกครั้ง (มันจะ pull แล้วคัดลอกใหม่) แล้วเปิด session ใหม่
+
+---
+
 ## หลักคิด 3 ข้อ
 
 | หลัก | ความหมาย |
@@ -96,17 +176,17 @@ Codex dispatch ทุก agent ด้วย `fork_turns="none"` แล้วส�
 ต้องมี skill ชุดของ Matt Pocock (`grilling`, `domain-modeling`) เท่านั้น — ไม่ต้องใช้ plugin `superpowers` แล้ว ตั้งแต่ 2026-09-25 execute loop อยู่ใน `adapters/loop.md` และใช้ร่วมกันทุก CLI
 
 ```bash
-npx skills@latest add mattpocock/skills -g -a '*'
+npx --yes skills@latest add mattpocock/skills -s grilling domain-modeling tdd research wayfinder -g -a '*' -y
 ```
 
-คำสั่งที่สองจะถามว่าเอา skill ตัวไหน ให้เลือกอย่างน้อย `grilling`, `domain-modeling`, `tdd`, `research`, `wayfinder` เลือกทั้งหมดก็ได้ และเลือกให้ติดตั้งกับทุก agent (`*`) จะได้ใช้ร่วมกับ Codex และ Grok
+คำสั่งนี้ติดตั้ง `grilling`, `domain-modeling`, `tdd`, `research`, `wayfinder` ให้ทุก agent (`*`) โดยไม่ถามอะไร จะได้ใช้ร่วมกับ Codex, Grok และ Cursor
 </details>
 
 <details>
 <summary><b>OpenAI Codex CLI</b></summary>
 
 ```bash
-npx skills@latest add mattpocock/skills -g -a '*'
+npx --yes skills@latest add mattpocock/skills -s grilling domain-modeling tdd research wayfinder -g -a '*' -y
 codex features list | grep multi_agent   # ต้องเป็น stable true
 ```
 
@@ -117,7 +197,7 @@ Codex อ่าน skill จาก `~/.agents/skills/` และ agent จาก
 <summary><b>xAI Grok CLI</b></summary>
 
 ```bash
-npx skills@latest add mattpocock/skills -g -a '*'
+npx --yes skills@latest add mattpocock/skills -s grilling domain-modeling tdd research wayfinder -g -a '*' -y
 ```
 
 Grok อ่าน skill จาก `~/.grok/skills/` และ `~/.agents/skills/` และอ่าน agent จาก `~/.grok/agents/*.md`
@@ -199,10 +279,10 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 
 | อยากเปลี่ยน | แก้ที่ไหน |
 |---|---|
-| ชื่อผู้ใช้ (ตอนนี้ skill เรียกคุณว่า "Mew") | แทนคำว่า `Mew` ใน `skills/mew-kickoff/SKILL.md`, `adapters/*.md` และ `agents/*/mew-*` ด้วยชื่อคุณ หรือปล่อยไว้ก็ได้ AI เข้าใจว่าหมายถึงคุณ |
+| ภาษาเอกสาร (plan, ADR, CONTEXT.md) | เขียนกฎภาษาเอกสารใน `AGENTS.md` หรือ `CLAUDE.md` ของคุณ เช่น `ภาษาเอกสาร: เขียนเอกสารทุกไฟล์เป็นภาษาไทย` ไม่ต้องแก้ skill ถ้าไม่ได้ตั้ง เอกสารเทคนิคเป็นภาษาอังกฤษ (กฎภาษาแชตไม่นับ) |
 | model หรือ effort ของ agent | Claude: frontmatter ใน `agents/claude/*.md` · Codex: `model` และ `model_reasoning_effort` ใน `agents/codex/*.toml` · Grok: `model:` และ `effort:` ใน `agents/grok/*.md` |
 | model ของ session | Claude: `/model` และ `/effort` · Codex: `~/.codex/config.toml` · Grok: `~/.grok/config.toml` |
-| ภาษาที่ใช้สัมภาษณ์ | หัวข้อ **Language** ใน `SKILL.md` (ค่าเริ่มต้น: เอกสารเทคนิคอังกฤษ สัมภาษณ์ไทย) |
+| ภาษาที่ใช้สัมภาษณ์ | หัวข้อ **Language** ใน `SKILL.md` (ค่าเริ่มต้น: สัมภาษณ์ไทย) |
 | เพิ่ม agent ตัวที่ 6 | เพิ่มไฟล์ใหม่ใน `agents/<cli>/` แล้วอ้างชื่อใน Execution Directive อย่าแก้ไฟล์ agent ระหว่างที่มี session รันอยู่ |
 
 แก้เสร็จให้รัน `smoke.sh` และเปิด session ใหม่เสมอ
@@ -241,4 +321,4 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 - [superpowers](https://github.com/obra/superpowers) — ต้นแบบของ execute loop (ledger, review package, fix rounds) ที่ `adapters/loop.md` ย่อมาใช้
 - [agentskills.io](https://agentskills.io) — สเปก SKILL.md ที่ทำให้ใช้ข้าม CLI ได้
 
-Private repo สำหรับนักเรียนของ Mew · ถามได้ในคลาส
+Public repo · ใครก็ clone ไปใช้ได้ · นักเรียนของ Mew ถามได้ในคลาส
