@@ -125,7 +125,7 @@ Windows ต้องใช้สิทธิ์พิเศษในการส
 flowchart TD
     A([คุณพิมพ์ /mew-kickoff]) --> B{Step 0 · Triage<br/>งานเล็กมาก?}
     B -- ใช่ --> B1[ทำเลย ไม่เข้า pipeline]
-    B -- ไม่ --> C[Step 1 · Recon<br/>อ่าน CONTEXT.md, docs/ ที่มีอยู่]
+    B -- ไม่ --> C[Step 1 · Recon<br/>อ่าน GLOSSARY.md/CONTEXT.md, docs/ ที่มีอยู่]
     C --> D[Step 2 · Interview<br/>grilling + domain-modeling<br/>ทั้ง frontier ในรอบเดียว พร้อมคำตอบแนะนำ]
     D --> E[Step 3 · Plan<br/>docs/plans/YYYY-MM-DD-slug.md<br/>Execution Directive · Acceptance Criteria]
     E --> E1{"> 5 task?"}
@@ -244,7 +244,7 @@ bash ~/projects/mew-kickoff/skills/mew-kickoff/scripts/smoke.sh
 **เอกสารที่ pipeline สร้างในโปรเจกต์ของคุณ**
 
 ```
-CONTEXT.md            glossary ของโปรเจกต์ (อัปเดตในที่ ไม่สร้างใหม่)
+GLOSSARY.md           glossary ของโปรเจกต์ (ไม่มีให้ใช้ CONTEXT.md; โปรเจกต์ใหม่ใช้ GLOSSARY.md; อัปเดตในที่ ไม่สร้างใหม่)
 docs/adr/             decision records
 docs/plans/           plan ต่อ 1 งาน ขึ้นต้นด้วยวันที่ ลบได้หลังส่งมอบ
 docs/plans/reports/   รายงานเต็มของ worker/reviewer
@@ -279,7 +279,7 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 
 | อยากเปลี่ยน | แก้ที่ไหน |
 |---|---|
-| ภาษาเอกสาร (plan, ADR, CONTEXT.md) | เขียนกฎภาษาเอกสารใน `AGENTS.md` หรือ `CLAUDE.md` ของคุณ เช่น `ภาษาเอกสาร: เขียนเอกสารทุกไฟล์เป็นภาษาไทย` ไม่ต้องแก้ skill ถ้าไม่ได้ตั้ง เอกสารเทคนิคเป็นภาษาอังกฤษ (กฎภาษาแชตไม่นับ) |
+| ภาษาเอกสาร (plan, ADR, GLOSSARY.md/CONTEXT.md) | เขียนกฎภาษาเอกสารใน `AGENTS.md` หรือ `CLAUDE.md` ของคุณ เช่น `ภาษาเอกสาร: เขียนเอกสารทุกไฟล์เป็นภาษาไทย` ไม่ต้องแก้ skill ถ้าไม่ได้ตั้ง เอกสารเทคนิคเป็นภาษาอังกฤษ (กฎภาษาแชตไม่นับ) |
 | model หรือ effort ของ agent | Claude: frontmatter ใน `agents/claude/*.md` · Codex: `model` และ `model_reasoning_effort` ใน `agents/codex/*.toml` · Grok: `model:` และ `effort:` ใน `agents/grok/*.md` |
 | model ของ session | Claude: `/model` และ `/effort` · Codex: `~/.codex/config.toml` · Grok: `~/.grok/config.toml` |
 | ภาษาที่ใช้สัมภาษณ์ | หัวข้อ **Language** ใน `SKILL.md` (ค่าเริ่มต้น: สัมภาษณ์ไทย) |

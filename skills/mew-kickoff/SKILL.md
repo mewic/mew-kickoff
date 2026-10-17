@@ -28,7 +28,7 @@ Spend the session model only where sharpness matters — interviewing, specifyin
 Arguments: the text after the skill name.
 
 - Empty → Steps 0–3 below. The interview session ends at the approval gate.
-- `execute <docs/plans/FILE.md>` → **fresh session only.** Read `execute.md` and follow it with the plan, CONTEXT.md, and referenced ADRs. If this session already ran Steps 1–3, stop and give the user the exact first message for a new session instead.
+- `execute <docs/plans/FILE.md>` → **fresh session only.** Read `execute.md` and follow it with the plan, GLOSSARY.md (else CONTEXT.md), and referenced ADRs. If this session already ran Steps 1–3, stop and give the user the exact first message for a new session instead.
 
 ## Step 0 — Triage (off-ramp)
 
@@ -38,10 +38,10 @@ Everything else enters the pipeline.
 
 ## Step 1 — Recon
 
-Check for `CONTEXT.md` and `docs/` in the project root.
+Check for `GLOSSARY.md` (else `CONTEXT.md`) and `docs/` in the project root.
 
 - **Nothing exists** (fresh project): full interview.
-- **Anything exists**: read whatever is there (`CONTEXT.md`, `docs/adr/`, latest plans) FIRST. Then interview only the **delta**. Never re-ask what the docs already answer.
+- **Anything exists**: read whatever is there (`GLOSSARY.md`/`CONTEXT.md`, `docs/adr/`, latest plans) FIRST. Then interview only the **delta**. Never re-ask what the docs already answer.
 
 **Inside an AI OS:** when the project folder sits inside a workspace whose parent folder has an `AGENTS.md` describing the business, also read that `AGENTS.md` and the files it points to (such as `business.md` and `brand.md`) before interviewing. They are read-only: never edit them, and never re-ask what they answer.
 
@@ -95,7 +95,7 @@ Rules:
 - **Tracer bullets**: each code task is a narrow, complete, independently verifiable path through every affected layer. Size it to one fresh worker context; prefactoring goes first.
 - **Mode**: `subagent` = dispatched as the named agent; `inline` = the session model itself (Agent column `(session model)`).
 - **Blocked by**: every task declares the task numbers that must finish before it can start (`—` = none). Declare only genuine dependencies — independent tasks unlock parallel dispatch during execute.
-- **Reference, never copy**: point to CONTEXT.md terms and ADR numbers instead of restating them.
+- **Reference, never copy**: point to GLOSSARY.md/CONTEXT.md terms and ADR numbers instead of restating them.
 - **Review gates by risk**: low → the worker's own build+test only (no reviewer dispatch); medium → `mew-reviewer` per task; high / `high-assurance` → `mew-reviewer` per task plus whole-branch and security review. Write the gate into the Review gates column.
 - **Proportional assurance**: default to `standard`. Use `high-assurance` for auth, payments, secrets, user-input boundaries, external side effects, data migration, irreversible operations, or unusually broad/novel changes. Record the reason and budget.
 - Consulting/marketing plans must contain the **complete brief**: every sentence of copy, structure, tone, image specs. A worker following the brief verbatim must be able to produce the deliverable.
@@ -118,7 +118,7 @@ Never start executing production code without explicit approval, and never in th
 ## Document Conventions
 
 ```
-CONTEXT.md            living glossary (update in place, never recreate)
+GLOSSARY.md           living glossary (else CONTEXT.md; update in place; new projects: GLOSSARY.md)
 docs/adr/             decisions, append small files (domain-modeling)
 docs/plans/           one file per task, date-prefixed, disposable after delivery
 docs/plans/reports/   full subagent reports outside the loop's workspace, disposable
@@ -126,13 +126,13 @@ docs/research/        AFK research, primary sources cited
 docs/deliverables/    consulting outputs
 ```
 
-**Language:** technical docs (plans, ADRs, CONTEXT.md) use the document language the user's instructions set (`AGENTS.md`, `CLAUDE.md`, or the harness's equivalent). Only an explicit rule about document or file language counts; a chat-language rule does not. With none set, technical docs are in English. Consulting deliverables in Thai; production copy in the language of the actual asset — embedding Thai (or other asset-language) copy blocks inside the plan file is the intended format. Interviews are conducted in Thai.
+**Language:** technical docs (plans, ADRs, GLOSSARY.md/CONTEXT.md) use the document language the user's instructions set (`AGENTS.md`, `CLAUDE.md`, or the harness's equivalent). Only an explicit rule about document or file language counts; a chat-language rule does not. With none set, technical docs are in English. Consulting deliverables in Thai; production copy in the language of the actual asset — embedding Thai (or other asset-language) copy blocks inside the plan file is the intended format. Interviews are conducted in Thai.
 
 ## Red Flags — stop and re-read this skill
 
 - The session model is writing production code while the pipeline is active.
 - Executing code, reading `execute.md`, or starting Step 4 in the interview session.
-- A plan restates CONTEXT.md/ADR content.
+- A plan restates GLOSSARY.md/CONTEXT.md/ADR content.
 - Re-interviewing facts already recorded in project docs.
 - A design decision answered on the user's behalf.
 - Asking one question per turn when the frontier held several.

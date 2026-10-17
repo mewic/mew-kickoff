@@ -2,7 +2,7 @@
 
 Read this only in a session whose first pipeline argument is `execute <plan-file>`. If this session already ran the interview, stop and hand the user a new-session first message instead.
 
-Prereq: the adapter is already read. Open the plan, CONTEXT.md, and referenced ADRs. If `approved:` is pending, present the summary and wait. Suggest the adapter's execute-session effort; return to top effort before the Tier-2 gate.
+Prereq: the adapter is already read. Open the plan, GLOSSARY.md (else CONTEXT.md), and referenced ADRs. If `approved:` is pending, present the summary and wait. Suggest the adapter's execute-session effort; return to top effort before the Tier-2 gate.
 
 Agent names: `mew-worker` (specified production), `mew-worker-heavy` (complex/security-sensitive), `mew-worker-mech` (mechanical), `mew-reviewer` (Tier 1), `mew-critic` (non-code/plan critic). An adapter may add a heavy reviewer. The adapter maps each role to model and effort. `scripts/smoke.sh` checks every pointer after harness or plugin updates.
 
@@ -41,7 +41,7 @@ At every plan checkpoint supported by the harness, record usage in the ledger. I
 
 ## Step 6 — Deliver
 
-Report delivered work, gate evidence, criteria, asset links, and frontier-wave count. Update plan Status, CONTEXT.md, and ADRs for decisions that crystallized.
+Report delivered work, gate evidence, criteria, asset links, and frontier-wave count. Update plan Status, GLOSSARY.md (else CONTEXT.md), and ADRs for decisions that crystallized.
 
 ## Red Flags — stop and re-read execute.md plus the adapter
 
