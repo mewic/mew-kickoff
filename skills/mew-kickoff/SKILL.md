@@ -30,6 +30,8 @@ Arguments: the text after the skill name.
 - Empty → Steps 0–3 below. The interview session ends at the approval gate.
 - `execute <docs/plans/FILE.md>` → **fresh session only.** Read `execute.md` and follow it with the plan, GLOSSARY.md (else CONTEXT.md), and referenced ADRs. If this session already ran Steps 1–3, stop and give the user the exact first message for a new session instead.
 
+Outputs and limits in the request scope the plan. Before approval, the interview session writes only the plan, `GLOSSARY.md`, and ADRs; every deliverable waits.
+
 ## Step 0 — Triage (off-ramp)
 
 If the request meets **ALL three**: no new design decisions, low risk, and independently verifiable as one bounded change, announce "งานนี้เข้าเกณฑ์ off-ramp" and do it directly with normal self-verification. File count alone never forces the pipeline. Low risk excludes auth, payments, secrets, user-input boundaries, external side effects, data migration, and irreversible operations. The user can always say "เข้า pipeline เต็ม" to override.
@@ -54,7 +56,7 @@ Load `grilling`, then `domain-modeling` as the adapter directs. Follow grilling:
 1. **Deliverable format** — code in repo / markdown doc / Gamma presentation / Canva design / website / images / mix. Record it as a fixed requirement.
 2. **Acceptance criteria** — concrete, checkable "done" conditions per deliverable (for non-code work too: questions it must answer, segments it must cover, slide count, required evidence).
 
-**Facts vs decisions:** a *fact* — anything answerable from the codebase, project docs, or external sources — is never asked; look it up. A *decision* — a choice about what to build or how it should behave — is always put to the user and waits for their answer. The session never answers a decision on the user's behalf.
+**Facts vs decisions:** a *fact* — anything answerable from the codebase, project docs, or external sources — is never asked; look it up. A *decision* — a choice about what to build or how it should behave — is always put to the user and waits for their answer. The session never answers a decision on the user's behalf. A preference stated in the data or request (a profile's "first system") becomes your recommendation; the user still decides.
 
 **External research (AFK):** when a needed fact lives outside the project (third-party docs, APIs, pricing, specs), dispatch `mew-worker` to research it instead of reading inline: **primary sources only** (official docs, source code, specs — never secondary write-ups), findings written to `docs/research/` as a Markdown file citing each claim's source. The session keeps interviewing/planning while the worker reads.
 
