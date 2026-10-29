@@ -4,7 +4,7 @@
 
 **Pipeline "สัมภาษณ์จนถึงส่งมอบ" สำหรับ AI coding agent — ให้โมเดลตัวท็อปคิด ให้ตัวเล็กผลิต แล้วให้ตัวท็อปตรวจปิดงาน**
 
-![Claude Code](https://img.shields.io/badge/Claude%20Code-supported-8A2BE2) ![Codex CLI](https://img.shields.io/badge/Codex%20CLI-supported-10a37f) ![Grok CLI](https://img.shields.io/badge/Grok%20CLI-supported-000000) ![skill format](https://img.shields.io/badge/format-agentskills.io-blue)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-supported-8A2BE2) ![Codex CLI](https://img.shields.io/badge/Codex%20CLI-supported-10a37f) ![Grok CLI](https://img.shields.io/badge/Grok%20CLI-supported-000000) ![Cursor](https://img.shields.io/badge/Cursor-supported-1f1f1f) ![skill format](https://img.shields.io/badge/format-agentskills.io-blue)
 
 </div>
 
@@ -16,12 +16,12 @@
 
 1. AI **สัมภาษณ์**คุณเป็นรอบ — ถามทุกข้อที่ถามได้ตอนนี้พร้อมคำตอบแนะนำ แล้วรอคุณตอบ ไม่เดาแทนคุณ
 2. เขียน **plan** ที่ระบุว่างานแต่ละชิ้นให้ agent ตัวไหนทำ ด้วยโมเดลอะไร
-3. หยุดรอคุณ **approve** ก่อนลงมือทุกครั้ง
+3. หยุดรอคุณ **approve** ก่อนลงมือทุกครั้ง ก่อนอนุมัติ session สัมภาษณ์เขียนแค่แผน `GLOSSARY.md` และ ADR งานจริงทุกชิ้นรอ
 4. กระจายงานให้ **worker agent** ทำในบริบทสด แยกจากบทสนทนาหลัก
 5. **reviewer** ตรวจงาน risk medium/high และรัน test เฉพาะส่วนเอง (งาน low risk ใช้ผล verify ของ worker) งานเสี่ยงจึงเพิ่ม whole-branch/security review แล้วโมเดลตัวท็อปปิดงาน
 6. ส่งมอบพร้อมหลักฐานว่าผ่าน gate ไหนบ้าง
 
-ใช้ได้กับ **Claude Code**, **OpenAI Codex CLI** และ **xAI Grok CLI** จาก source เดียวกัน
+ใช้ได้กับ **Claude Code**, **OpenAI Codex CLI**, **xAI Grok CLI** และ **Cursor** จาก source เดียวกัน
 
 > ได้แรงบันดาลใจจาก [mattpocock/skills](https://github.com/mattpocock/skills) และ [superpowers](https://github.com/obra/superpowers) ขอบคุณทั้งสองโปรเจกต์
 
@@ -115,7 +115,7 @@ Windows ต้องใช้สิทธิ์พิเศษในการส
 | **Context economy** | session หลักเก็บบริบทของการสัมภาษณ์กับ plan ให้สะอาด งานผลิตไปเผาบริบทสดของ worker แทน state อยู่บนดิสก์ (plan, ledger, report) เพื่อให้ harness compact ได้ ไม่ใช้ context 1M เพื่อเลี่ยง compaction |
 | **Review independence** | คนเขียนไม่ใช่คนตัดสิน worker ผลิต, reviewer ตรวจ, session ปิดงาน |
 
-ทำไมถึงเชื่อแบบนี้: เราวัดจริงจาก transcript 5 สัปดาห์ ($16k เทียบราคา API) พบว่า **65% ของต้นทุนคือ session หลักอ่าน context ยาว ๆ ซ้ำทุก turn** ส่วน output ที่ worker ผลิตทั้งหมดรวมกันไม่ถึง 1% ดังนั้นสถาปัตยกรรม "ท็อปคิด เล็กผลิต" ถูกแล้ว สิ่งที่ต้องคุมคือขนาดบริบทของ session หลัก (รายละเอียดใน [`docs/HANDOFF.md`](docs/HANDOFF.md)) audit รอบ 2026-09-24/25 ยืนยันซ้ำ: 5B cache-read tokens ใน 2 วัน, subagent 67%, context เฉลี่ยของ session หลัก 396K ต่อ call จึงเป็นที่มาของการปรับใน [อัปเดตล่าสุด](#อัปเดตล่าสุด-2026-09-25)
+ทำไมถึงเชื่อแบบนี้: เราวัดจริงจาก transcript 5 สัปดาห์ ($16k เทียบราคา API) พบว่า **65% ของต้นทุนคือ session หลักอ่าน context ยาว ๆ ซ้ำทุก turn** ส่วน output ที่ worker ผลิตทั้งหมดรวมกันไม่ถึง 1% ดังนั้นสถาปัตยกรรม "ท็อปคิด เล็กผลิต" ถูกแล้ว สิ่งที่ต้องคุมคือขนาดบริบทของ session หลัก (รายละเอียดใน [`docs/HANDOFF.md`](docs/HANDOFF.md)) audit รอบ 2026-09-24/25 ยืนยันซ้ำ: 5B cache-read tokens ใน 2 วัน, subagent 67%, context เฉลี่ยของ session หลัก 396K ต่อ call จึงเป็นที่มาของการปรับใน [อัปเดต 2026-09-25](#อัปเดต-2026-09-25)
 
 ---
 
@@ -293,6 +293,8 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 
 **พิมพ์ `/mew-kickoff` แล้วไม่ขึ้น** — เปิด session ใหม่หรือยัง? skill ถูกอ่านตอนเริ่ม session และตั้งใจให้ AI มองไม่เห็นในรายการอัตโนมัติ คุณต้องเป็นคนเรียกเอง
 
+**Codex ถามแค่ 1–2 ข้อ หรือไม่ถามเลยแล้วลงมือสร้างไฟล์ทันที** — คุณใช้เวอร์ชันก่อน 2026-10-29 ส่งข้อความติดตั้งให้ AI อีกครั้งเพื่ออัปเดต แล้วเปิด session ใหม่
+
 **AI บอกว่า Skill tool ปฏิเสธ `grill-with-docs`** — คุณใช้ skill เวอร์ชันเก่า อัปเดต repo แล้วรัน `smoke.sh`
 
 **แก้ไฟล์ agent แล้วไม่มีผล** — ไฟล์ agent มีผลกับ session ใหม่เท่านั้น ทุก CLI
@@ -303,7 +305,15 @@ install.sh                 สร้าง symlink เข้า CLI ทั้ง
 
 ---
 
-## อัปเดตล่าสุด 2026-09-25
+## อัปเดตล่าสุด 2026-10-29
+
+ใครติดตั้งก่อนวันนี้ ส่งข้อความติดตั้ง (Mac หรือ Windows) ให้ AI อีกครั้ง แล้วเปิด session ใหม่ ตัวติดตั้งไม่อัปเดตเอง
+
+- **สัมภาษณ์ก่อน แล้วค่อยลงมือ** ผลลัพธ์และข้อจำกัดในคำขอใช้กำหนดขอบเขตของแผน ก่อนอนุมัติ session สัมภาษณ์เขียนแค่แผน `GLOSSARY.md` และ ADR ส่วนงานจริงทุกชิ้นรอ execute ที่มา: ตอนซ้อมคลาส Codex (gpt-6.1-sol, reasoning xhigh) ไม่ถามเลยสักข้อ แล้วสร้างไฟล์และย้ายข้อมูลใน session สัมภาษณ์ ไฟล์ที่คำขอสั่งให้บันทึกเป็นข้อมูลตั้งต้น เช่น `docs/reference.md` ของชุดพรอมต์ในคอร์ส ยังบันทึกได้ตามปกติ (ทดสอบแล้วทั้ง Claude และ Codex)
+- **ข้อมูลที่บอกความชอบไว้แล้ว ไม่นับเป็นคำตอบ** เช่น ไฟล์ข้อมูลธุรกิจเขียนว่า "ระบบแรก: LINE" AI จะเอาไปเป็นคำตอบที่แนะนำ แต่ยังถามคุณ ที่มา: Codex (reasoning high) เห็นบรรทัดนี้แล้วถือว่าตัดสินแล้ว จึงถามแค่ 2 ข้อ หลังแก้ถาม 3–4 ข้อ ครอบคลุมระบบที่ต้องมีและลำดับ (Claude ถาม 13 ข้อทั้งก่อนและหลังแก้)
+- **2026-10-17: นักเรียนติดตั้งเองได้** ข้อความติดตั้งสำหรับ Mac และ Windows (Windows คัดลอกไฟล์แทน symlink) รองรับ Cursor · โปรเจกต์ใหม่ใช้ `GLOSSARY.md` แทน `CONTEXT.md` · Codex ถามสัมภาษณ์เป็นข้อความธรรมดา ไม่ใช้ `request_user_input_async`
+
+## อัปเดต 2026-09-25
 
 - **ไม่ต้องใช้ plugin `superpowers` แล้ว** `adapters/loop.md` เป็น execute loop กลางของ Claude Code, Codex, Grok และ Cursor ปิด plugin ได้เลย (`claude plugins disable superpowers`)
 - **review ตาม risk** `mew-reviewer` ตรวจเฉพาะ task risk medium/high งาน low ใช้ผล verify ของ worker + final gate
